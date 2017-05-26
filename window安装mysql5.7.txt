@@ -1,0 +1,55 @@
+电脑重装了，本地的数据库什么全没了，只能重装，步骤如下：
+
+环境：win7
+
+
+1、下载
+https://cdn.mysql.com//Downloads/MySQL-5.7/mysql-5.7.18-winx64.zip
+解压，我解压到的是
+D:\mysql\mysql-5.7.18-winx64
+
+
+2、编写my.ini文件，因为初始化配置，启动都需要该配置
+
+
+
+3、管理员打开cmd，切换到安装目录\bin
+MYSQL5.7初始化数据库不设置密码
+mysqld --initialize-insecure
+校验mysqld是否安装成功
+mysqld -uroot -p
+安装到服务
+mysqld install mysql3306
+启动
+net start mysql3306
+停止
+net stop mysql3306
+
+
+4、多实例情况下复制当前mysql安装目录，修改my.ini，删除data目录，再执行一遍初始化数据库
+
+5、通过windows批处理启动、停止mysql
+
+@echo off
+echo mysql3306
+for /f "skip=3 tokens=4" %%i in ('sc query mysql3306') do set "zt=%%i" &goto :next
+:next
+if /i "%zt%"=="RUNNING" (goto 1)
+if /i "%zt%"=="STOPPED" (goto 2)
+:1
+echo mysql3306服务在运行，现在停止将停止运行
+net stop mysql3306
+echo 停止完成
+exit
+ 
+:2
+echo mysql3306服务现在处理停止状态,将进行启动
+net start mysql3306
+echo 启动完成
+exit
+pause>null
+
+
+
+
+
