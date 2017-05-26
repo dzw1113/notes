@@ -1,0 +1,33 @@
+问题：nginx的日志默认是按天备份的，但是新增了另外一个日志输出目录，是没有的，不知道为什么。日志文件越来越大，分析起来会越来越麻烦，需要按天分隔。
+
+	
+	
+vim cut_nginx_log.sh
+
+chmod 777 cut_nginx_log.sh
+
+可以把循环里的mv调整成echo到文件
+echo $(date -d "yesterday" +"%Y-%m-%d-%H:%M:%S") > $(date -d "yesterday" +"%Y-%m-%d-%H:%M:%S").txt
+执行下校验脚本
+./cut_nginx_log.sh
+
+每分钟执行一次
+*/1 * * * * /mnt/cut_nginx_log.sh
+
+crontab -e
+00 00 * * * /mnt/cut_nginx_log.sh
+crontab -l
+
+	
+
+出现以下错误是因为阿里云不支持ip6	
+/var/log/maillog
+May 26 17:02:01 iZbp17vlqunx6ke94g3ru3Z crond[632]: sendmail: fatal: parameter inet_interfaces: no local interface found for ::1
+
+vim  /etc/postfix/main.cf
+发现配置为：
+inet_interfaces = localhost
+inet_protocols = all
+改成：
+inet_interfaces = all
+inet_protocols = all	
