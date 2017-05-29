@@ -1,0 +1,64 @@
+redis依赖RubyInstaller
+1、下载Redis for windows 的最新版本，解压到 d:\Redis 目录下备用
+https://github.com/MSOpenTech/redis/releases
+当前我使用的是 3.0.504
+
+2、https://github.com/MSOpenTech/redis/releases，我下的是2.4.1。
+
+3,下载 redis-trib.rb , 放到 d:\redis 目录下备用
+https://raw.githubusercontent.com/antirez/redis/unstable/src/redis-trib.rb
+
+4，新建6个子文件夹
+cmd
+cd d:\redis
+mkdir 7001 7001 7002 7003 7004 7005
+
+5，将如下配置修改，分别放入上一步新建的6个子文件夹中, 保存为 redis.conf：
+port 7000
+cluster-enabled yes
+cluster-config-file nodes-7000.conf
+cluster-node-timeout 5000
+appendonly yes
+
+注意，将 port 和 cluster-config-file 改掉（每个文件都不一样）
+
+
+6, 为方便启动这些 Redis 实例，新建环境变量，新建如下 bat 文件：
+
+@echo off
+start redis-server D:\redis\7001\redis.conf
+start redis-server D:\redis\7002\redis.conf
+start redis-server D:\redis\7003\redis.conf
+start redis-server D:\redis\7004\redis.conf
+start redis-server D:\redis\7005\redis.conf
+start redis-server D:\redis\7006\redis.conf
+
+
+7, 运行上步新建的 bat 文件，会打开6个窗口，每个窗口承载一个 Redis 实例，端口从 7000 至 7005
+在 d:\Redis 文件夹下会出现 nodes-7000.conf 至 nodes-7005.conf 这几个文件
+
+
+8,安装 GEM，Redis 的 ruby 支持环境
+https://rubygems.org/
+我下载的是zip包，解压D:\rubygems-2.6.12\rubygems-2.6.12
+进入bin目录，执行ruby setup.rb（管理员）
+
+gem -v
+查看版本
+
+安装redis集群环境
+gem install redis
+
+
+9,加入集群
+cd d:\redis
+redis-trib.rb create --replicas 1 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 127.0.0.1:7006
+
+
+--replicas 1 即自动分配 Slave ， 如果想手动指定 Slave  , 将该值变为 0 即可， 地址列表中，只需要 3个实例即可
+
+
+10，校验
+redis-cli.exe -c -p 7001
+
+
