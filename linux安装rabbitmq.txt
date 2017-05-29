@@ -52,3 +52,7 @@ http://xxxxxxx:15672/
 创建虚拟主机：rabbitmqctl add_vhost vhost（vhost为虚拟主机名）
 清理原始权限：rabbitmqctl clear_permissions -p / damon
 授予新主机权限：rabbitmqctl set_permissions -p vhost damon ".*" ".*" ".*"
+
+
+rabbitmqctl查看队列情况
+http://blog.csdn.net/u014087707/article/details/53976576
