@@ -1,0 +1,54 @@
+http://www.rabbitmq.com/install-rpm.html
+
+
+1、下载erlang
+http://www.erlang.org/downloads
+scp root@10.168.55.122:/mnt/package/otp_src_19.1.tar.gz .
+scp root@10.168.55.122:/mnt/package/rabbitmq-server-3.6.5-1.noarch.rpm .
+
+安装erlang所需环境
+yum -y install make gcc gcc-c++ kernel-devel m4 ncurses-devel openssl-devel unixODBC-dev
+
+2、tar -xvzf otp_src_19.1.tar.gz
+./configure --prefix=/usr/erlang --without-javac
+
+3、make 
+make install
+
+校验：
+进入/usr/erlang/bin
+./erl
+
+vim /etc/profile
+export ERLANG_HOME=/usr/erlang
+export PATH=${ERLANG_HOME}/bin:${PATH}
+
+source /etc/profile
+
+4、安装rabbitmq
+rpm --import https://www.rabbitmq.com/rabbitmq-release-signing-key.asc
+yum install rabbitmq-server-3.6.5-1.noarch.rpm
+
+
+5、下载延时队列插件
+chkconfig rabbitmq-server on
+rabbitmq-plugins enable rabbitmq_management
+
+rabbitmq-plugins list
+mv rabbitmq_delayed_message_exchange-0.0.1.ez /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.5/plugins/
+启用：
+rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+
+rabbitmq-server -detached
+
+
+http://xxxxxxx:15672/
+删除guest用户
+默认网页是不允许访问的，需要增加一个用户修改一下权限，代码如下：
+　　添加用户：rabbitmqctl add_user damon 123456
+　　添加权限：rabbitmqctl set_permissions -p "/" damon ".*" ".*" ".*"
+修改用户角色：rabbitmqctl set_user_tags damon administrator
+#根据自己需要创建以下内容
+创建虚拟主机：rabbitmqctl add_vhost vhost（vhost为虚拟主机名）
+清理原始权限：rabbitmqctl clear_permissions -p / damon
+授予新主机权限：rabbitmqctl set_permissions -p vhost damon ".*" ".*" ".*"
