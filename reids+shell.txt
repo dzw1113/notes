@@ -1,0 +1,22 @@
+redis-cli -h 10.117.180.197 -c -p 7001 keys name* > b.txt
+
+awk '$0=" del \""$0"\""' b.txt > cmdb.txt
+
+awk '$0=$0";"' cmdb.txt > cmdb1.txt
+
+cat cmdb1.txt | xargs redis-cli -h 10.117.180.197 -c -p 7001 -x
+
+问题点：(error) CROSSSLOT Keys in request don't hash to the same slot
+该问题暂未解决。
+参考解决：https://redis.io/topics/cluster-spec#keys-hash-tags
+
+redis集群方案-一致性hash算法
+http://blog.csdn.net/u014490157/article/details/52244378
+
+
+#/bin/sh
+
+for ((i=0;i<10000;i++))
+do
+echo -en "helloworld" | redis-cli -h 10.117.180.197 -c -p 7001 -x set name$i >>redis.log
+done

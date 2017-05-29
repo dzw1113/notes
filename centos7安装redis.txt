@@ -1,0 +1,145 @@
+1、下载redis源码
+wget http://download.redis.io/releases/redis-3.2.3.tar.gz
+or
+scp root@XXXXXXXX:/mnt/package/redis-3.2.3.tar.gz .
+
+解压到目录/mnt
+tar -zxvf redis-3.2.3.tar.gz
+
+
+2、编译、安装
+cd redis-3.2.3/
+make && make install
+
+Hint: It's a good idea to run 'make test' ;)
+make[1]: Leaving directory `/mnt/redis-3.2.3/src'
+cd src && make install
+make[1]: Entering directory `/mnt/redis-3.2.3/src'
+Hint: It's a good idea to run 'make test' ;)
+    INSTALL install
+    INSTALL install
+    INSTALL install
+    INSTALL install
+    INSTALL install
+make[1]: Leaving directory `/mnt/redis-3.2.3/src'
+
+日志输出：
+redis安装到/usr/local,/usr/local/bin,/usr/local/share,/usr/local/include,/usr/local/lib,/usr/local/share/man目录下
+校验：redis-cli –version
+
+3、安装库（自带install脚本或者手动指定配置文件）
+cd utils/
+./install_server.sh
+Port      : 6379
+Config file  : /etc/redis/6379.conf
+Log file    : /var/log/redis_6379.log
+Data dir    : /var/lib/redis/6379
+Executable   : /usr/local/bin/redis-server
+Cli Executable : /usr/local/bin/redis-cli
+Copied /tmp/6379.conf => /etc/init.d/redis_6379
+除了以上外，	
+redis-server /etc/redis.conf &
+
+
+
+4、主从配置（参考/mnt/redis-3.2.3/utils/create-cluster目录下README,解释如下）
+cd /mnt/redis-3.2.3/utils/create-cluster
+
+Create-cluster是一个小的脚本，用于快捷的去启动一个大数量实例的集群。
+ 它主要的目的是允许在不方便同步redis集群条件下（即不方便复现redis集群的bug 情况下，人为创造同样条件bug），可以测试。 
+ 这个工具可以很容易的创建一定数量的实例的集群用于测试系统
+ 用法：
+ 1.去创建集群
+  1.1 你需要去编辑该目录下的create-cluster文件，并且更改文件中以下部分
+  PORT=30000 //集群端口从30000开始，这个你就可以改成你想用的port 7000 or 9000都可以
+  TIMEOUT=2000
+  NODES=6 //集群共有6个nodes
+  REPLICAS=1//每个master有1个salve
+  1.2  使用"./create-cluster start"命令去启动各个实例nodes
+  1.3  使用"./create-cluster create"去连接各个node
+  1.4 已经创建好，你可以检验一下本地目录生成了什么文件。
+ 2.停止集群
+  2.1 使用"./craete-cluster stop"去停止所有的实例
+  2.2 使用"./create-cluster clean"去移走产生的aof,log,rdb等文件
+
+修改create-cluster文件
+
+
+       1、问题：/usr/bin/env: ruby: No such file or directory
+       yum install ruby
+       
+       
+       2、问题：/usr/share/rubygems/rubygems/core_ext/kernel_require.rb:55:in `require': cannot load such file -- redis (LoadError)
+       	from /usr/share/rubygems/rubygems/core_ext/kernel_require.rb:55:in `require'
+       	from ../../src/redis-trib.rb:25:in `<main>'
+       
+       gem install redis
+       
+       
+       3、问题：通过java程序jedis链接的时候，偶尔会出先connection fail或者获取不到链接，需要
+       --bind 10.117.180.197
+       
+       
+       校验：
+       redis-cli -h 10.117.180.197 -c -p 7001
+       10.117.180.197:7001> cluster nodes
+       b711b9ed1f035607cfdd68630d069fb597a398c1 10.117.180.197:7002 master - 0 1496028093757 2 connected 5461-10922
+       cfb87682deaf641cec033a36089822d01edb5f50 10.117.180.197:7005 slave b711b9ed1f035607cfdd68630d069fb597a398c1 0 1496028090751 5 connected
+       0ac6c02b307307f5f67b09a2699462e49d1f3322 10.117.180.197:7003 master - 0 1496028092755 3 connected 10923-16383
+       f45242b27000c9bddc5d4aecd6b83664e8f6b429 10.117.180.197:7001 myself,master - 0 0 1 connected 0-5460
+       f3ee40d3c448940e6751b87302c3e7315fec7707 10.117.180.197:7006 slave 0ac6c02b307307f5f67b09a2699462e49d1f3322 0 1496028091753 6 connected
+       97dc89c3cfd9d2a5760ea8ffd5d3eaf2d1bc6da6 10.117.180.197:7004 slave f45242b27000c9bddc5d4aecd6b83664e8f6b429 0 1496028092254 4 connected
+
+
+      4、>>> Creating cluster
+			*** ERROR: Invalid configuration for cluster creation.
+			*** Redis Cluster requires at least 3 master nodes.
+			*** This is not possible with 6 nodes and 2 replicas per node.
+			*** At least 9 nodes are required.
+			
+			至少3+3，还延续着Master-Slave的设计理念
+
+5、开启哨兵
+哨兵的配置是一样的，唯一的区别是端口的差异
+配置sentinel.conf
+sentinel monitor mymaster 10.117.180.197 7001 2 对应的分别是 名称，ip，端口，投票选举的次数（那么我们哨兵监听的肯定是master的ip和端口是,2说明当master主服务器down机之后，剩下的服务器要进行一个投票选举出一个主服务器）
+sentinel down-after-milliseconds mymaster 5000 这个配置代表哨兵0.5ms进行一次检查这个集群。
+redis-server /mnt/redis-3.2.3/sentinel.conf --sentinel &
+sentinel parallel-syncs mymaster 2这个配置代表你的几个从节点将支持转换为主服务器的这个事情。
+
+按照第四部启动集群，链接集群
+查看状态
+redis-cli -h 10.117.180.197 -c -p 7001
+10.117.180.197:7001> cluster nodes
+ec548fba3c7283c3f71b83ca32138303a5d2d685 10.117.180.197:7004 slave 38c371491d19b3700e44e55107050730791f55af 0 1496029095345 4 connected
+8bb5690cc08b1fcf29641e3c1e0db0e0a3a58ce5 10.117.180.197:7002 master - 0 1496029092339 2 connected 5461-10922
+8f15af448045829eed7f363fcc93cf7f1a0fd07c 10.117.180.197:7005 slave 38c371491d19b3700e44e55107050730791f55af 0 1496029096347 5 connected
+7af06483736c91551c5bbf61639b90f02603040e 10.117.180.197:7006 slave 8bb5690cc08b1fcf29641e3c1e0db0e0a3a58ce5 0 1496029095846 6 connected
+38c371491d19b3700e44e55107050730791f55af 10.117.180.197:7001 myself,master - 0 0 1 connected 0-5460
+ae79851918103d674c3db5ab208ac25451aabac9 10.117.180.197:7008 slave 1e8c87f4b8755c42ac59eba3e9694f7a85826544 0 1496029093341 8 connected
+b58b94ff01346301b2c4626ff6db53cc636a34b4 10.117.180.197:7007 slave 8bb5690cc08b1fcf29641e3c1e0db0e0a3a58ce5 0 1496029091336 7 connected
+1e8c87f4b8755c42ac59eba3e9694f7a85826544 10.117.180.197:7003 master - 0 1496029096849 3 connected 10923-16383
+d88a688ac8bd2e7a5a0ec99a2357c2fbdd798472 10.117.180.197:7009 slave 1e8c87f4b8755c42ac59eba3e9694f7a85826544 0 1496029094344 9 connected
+
+开启哨兵
+redis-server /mnt/redis-3.2.3/sentinel.conf --sentinel &
+
+查看redis进程
+ps -ef|grep redis
+杀掉7001端口
+kill -9 30455
+查看状态
+redis-cli -h 10.117.180.197 -c -p 7002
+10.117.180.197:7001> cluster nodes
+38c371491d19b3700e44e55107050730791f55af 10.117.180.197:7001 master,fail - 1496030103330 1496030096316 1 disconnected
+8bb5690cc08b1fcf29641e3c1e0db0e0a3a58ce5 10.117.180.197:7002 myself,master - 0 0 2 connected 5461-10922
+7af06483736c91551c5bbf61639b90f02603040e 10.117.180.197:7006 slave 8bb5690cc08b1fcf29641e3c1e0db0e0a3a58ce5 0 1496030158995 6 connected
+ae79851918103d674c3db5ab208ac25451aabac9 10.117.180.197:7008 slave 1e8c87f4b8755c42ac59eba3e9694f7a85826544 0 1496030156491 8 connected
+8f15af448045829eed7f363fcc93cf7f1a0fd07c 10.117.180.197:7005 slave ec548fba3c7283c3f71b83ca32138303a5d2d685 0 1496030159497 11 connected
+ec548fba3c7283c3f71b83ca32138303a5d2d685 10.117.180.197:7004 master - 0 1496030160500 11 connected 0-5460
+b58b94ff01346301b2c4626ff6db53cc636a34b4 10.117.180.197:7007 slave 8bb5690cc08b1fcf29641e3c1e0db0e0a3a58ce5 0 1496030157493 7 connected
+d88a688ac8bd2e7a5a0ec99a2357c2fbdd798472 10.117.180.197:7009 slave 1e8c87f4b8755c42ac59eba3e9694f7a85826544 0 1496030159998 9 connected
+1e8c87f4b8755c42ac59eba3e9694f7a85826544 10.117.180.197:7003 master - 0 1496030158494 3 connected 10923-16383
+
+7001是跪着的。704当了master
+
