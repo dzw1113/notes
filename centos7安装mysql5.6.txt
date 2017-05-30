@@ -1,0 +1,88 @@
+MySQL 依赖 libaio，所以先要安装 libaio
+# 检索相关信息
+yum search libaio  
+# 安装依赖包
+yum install libaio
+
+检查 MySQL 是否已安装
+yum list installed | grep mysql
+yum -y remove mysql-libs.x86_64
+
+下载 MySQL Yum Repository
+wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
+
+mv mysql-community-release-el7-5.noarch.rpm /mnt/
+
+
+添加 MySQL Yum Repository 到你的系统 repository 列表中
+yum localinstall mysql-community-release-el7-5.noarch.rpm 
+
+验证下是否添加成功
+yum repolist enabled | grep "mysql.*-community.*"
+
+选择要启用 MySQL 版本
+yum repolist all | grep mysql
+
+可以通过类似下面的语句来启动某些版本
+yum-config-manager --disable mysql56-community
+yum-config-manager --enable mysql57-community-dmr
+或者通过修改 
+/etc/yum.repos.d/mysql-community.repo 文件
+# Enable to use MySQL 5.6
+[mysql56-community]
+name=MySQL 5.6 Community Server
+baseurl=http://repo.mysql.com/yum/mysql-5.6-community/el/7/$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=file:/etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+其中 enabled=0 是指禁用，enabled=1 指启用。
+注意： 任何时候，只能启用一个版本
+
+
+通过 Yum 来安装 MySQL
+yum install mysql-community-server
+
+可以看到 MySQL 的安装目录是 /usr/bin/
+whereis mysql
+
+
+systemctl start  mysqld
+systemctl status  mysqld
+systemctl stop mysqld
+systemctl status  mysqld
+
+防火墙开启设置
+systemctl start firewalld
+firewall-cmd --state
+firewall-cmd --permanent --zone=public --add-port=3306/tcp
+firewall-cmd --permanent --zone=public --add-port=3306/udp
+firewall-cmd --reload 
+
+MySQL 安全设置
+systemctl start mysqld
+mysql_secure_installation
+vim /etc/my.cnf
+mv /mnt/my.cnf /etc/
+vim /etc/my.cnf
+
+创建数据目录
+mkdir -p /mnt/mysql/data
+cd /mnt/mysql/data
+ls
+vim /etc/my.cnf
+ls /var/run/mysqld/mysqld.pid
+ls
+systemctl stop mysqld
+systemctl start mysqld
+systemctl status mysqld
+
+
+创建远程账户
+mysql -h10.117.180.197 -uroot -p
+CREATE USER '1111'@'%' IDENTIFIED BY '11';
+mysql -h10.117.180.197 -uroot -p
+
+
+加入开机启动
+systemctl is-enabled mysql.service;echo $?
+chkconfig --levels 235 mysqld on
