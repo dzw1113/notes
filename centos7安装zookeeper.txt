@@ -1,0 +1,21 @@
+下载zookeeper
+http://mirror.bit.edu.cn/apache/zookeeper/
+
+wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.4.6/zookeeper-3.4.6.tar.gz
+
+mkdir /mnt/zookeeper
+
+tar -xzvf zookeeper-3.4.6.tar.gz -C /mnt/zookeeper/
+
+vim zoo.cfg
+
+mkdir /mnt/zookeeper/zookeeper-3.4.6/data
+mkdir /mnt/zookeeper/zookeeper-3.4.6/logs
+
+在data目录下生成myid文件，写入服务器编号
+
+vim /etc/profile
+export ZOOKEEPER_HOME=/mnt/zookeeper/zookeeper-3.4.6
+export PATH=${ZOOKEEPER_HOME}/bin:${PATH}
+
+source /etc/profile
