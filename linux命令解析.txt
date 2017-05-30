@@ -57,3 +57,8 @@ file则是awk要处理的文件名称。让我们通过demo来体会awk的功能
 
 echo '11 22 33 44' | awk '{print $3" "$2" "$1}'
 输出：33 22 11
+
+
+
+
+update-alternatives：

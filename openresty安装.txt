@@ -1,0 +1,43 @@
+yum install yum-utils
+yum-config-manager --add-repo https://openresty.org/package/centos/openresty.repo
+yum install openresty
+yum install openresty-resty
+
+openresty中文网（通过 Lua 扩展 NGINX 实现的可伸缩的 Web 平台）
+http://openresty.org/cn/components.html
+
+wget https://openresty.org/download/openresty-1.11.2.3.tar.gz
+
+
+tar -xzvf openresty-1.11.2.3.tar.gz
+
+
+cd openresty-1.11.2.3
+
+./configure --prefix=/usr/local/openresty
+
+gmake & gmake install
+
+Configuration summary
+  + using system PCRE library
+  + using system OpenSSL library
+  + using system zlib library
+
+  nginx path prefix: "/usr/local/openresty//nginx"
+  nginx binary file: "/usr/local/openresty//nginx/sbin/nginx"
+  nginx modules path: "/usr/local/openresty//nginx/modules"
+  nginx configuration prefix: "/usr/local/openresty//nginx/conf"
+  nginx configuration file: "/usr/local/openresty//nginx/conf/nginx.conf"
+  nginx pid file: "/usr/local/openresty//nginx/logs/nginx.pid"
+  nginx error log file: "/usr/local/openresty//nginx/logs/error.log"
+  nginx http access log file: "/usr/local/openresty//nginx/logs/access.log"
+  nginx http client request body temporary files: "client_body_temp"
+  nginx http proxy temporary files: "proxy_temp"
+  nginx http fastcgi temporary files: "fastcgi_temp"
+  nginx http uwsgi temporary files: "uwsgi_temp"
+  nginx http scgi temporary files: "scgi_temp"
+
+cd ../..
+Type the following commands to build and install:
+    gmake
+    gmake install
