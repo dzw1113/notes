@@ -1,0 +1,13 @@
+œ¬‘ÿjdk8
+http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+œ¬‘ÿjdk7
+http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html
+scp root@10.168.55.122:/mnt/package/jdk-7u79-linux-x64.rpm .
+
+rpm -qa|grep jdk
+
+rpm -e  --nodeps xxxxxx
+
+chmod 755 jdk-8u131-linux-x64.rpm
+
+rpm -i jdk-8u131-linux-x64.rpm
