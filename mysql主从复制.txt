@@ -1,0 +1,84 @@
+1、主从服务器分别作以下操作
+  1.1、版本一致
+  1.2、初始化表，并在后台启动mysql
+  1.3、修改root的密码
+ 
+
+2、修改主服务器master
+[mysqld]
+       log-bin=mysql-bin   //[必须]启用二进制日志
+       server-id=222      //[必须]服务器唯一ID，默认是1，一般取IP最后一段
+       
+3、修改从服务器slave: 
+[mysqld]
+log-bin=mysql-bin   //[不是必须]启用二进制日志
+server-id=226      //[必须]服务器唯一ID，默认是1，一般取IP最后一段 
+ 
+4、重启两台服务器的mysql
+/etc/init.d/mysql restart
+
+5、在主服务器上建立帐户并授权slave 
+GRANT REPLICATION SLAVE ON *.* TO 'slave'@'%' IDENTIFIED BY 'slave'; 
+
+6、登录主服务器的mysql，查询master的状态
+注：执行完此步骤后不要再操作主服务器MYSQL，防止主服务器状态值变化
+
+
+7、配置从服务器Slave：
+CHANGE MASTER TO MASTER_HOST='127.0.0.1',MASTER_USER='slave',MASTER_PASSWORD='slave',
+MASTER_PORT = 3306;
+
+START SLAVE;
+
+
+8、检查从服务器复制功能状态：
+Slave_SQL_Running_state:
+Slave has read all relay log; waiting for more updates
+
+注：Slave_IO及Slave_SQL进程必须正常运行，即YES状态，否则都是错误的状态(如：其中一个NO均属错误)
+
+参考：查看mysql主从配置的状态及修正 slave不启动问题
+http://blog.chinaunix.net/uid-24426415-id-77316.html
+参考：mysql主从复制-CHANGE MASTER TO 语法详解
+http://blog.csdn.net/jesseyoung/article/details/41942809
+
+
+9、主从服务器测试：
+CREATE DATABASE hi_db;
+USE hi_db;
+CREATE TABLE hi_tb(id INT(3),NAME CHAR(10));
+INSERT INTO hi_tb VALUES(001,'bobu');
+SHOW DATABASES;
+
+校验：
+在从库执行
+SHOW DATABASES;
+
+重置master的binlog信息
+RESET MASTER;
+停止从库复制
+STOP SLAVE;
+出现不同步，可以重新change master to...
+
+通过sqlyog（版本V11.27）同步工具整库同步到主库，观察主、从库的数据变化，中途可stop slave观察，再启动，一切都正常。
+
+通过阿里的canal单元测试ing。
+
+
+
+集群参考
+http://blog.itpub.net/25723371/viewspace-1977389/
+
+mysql集群搭建
+http://www.cnblogs.com/shihaiming/p/6084965.html
+
+缺点及限制：
+http://blog.csdn.net/zdc524/article/details/50522856
+
+对需要进行分片的表需要修改引擎Innodb为NDB，不需要分片的可以不修改。NDB的事务隔离级别只支持Read Committed，
+即一个事务在提交前，查询不到在事务内所做的修改；而Innodb支持所有的事务隔离级别，默认使用Repeatable Read，不存在这个问题。
+外键支持：虽然最新的Cluster版本已经支持外键，但性能有问题（因为外键所关联的记录可能在别的分片节点中），所以建议去掉所有外键。
+Data Node节点数据会被尽量放在内存中，对内存要求大
+
+mysql cluster集群优缺点（推荐：优缺点很明细）
+http://blog.itpub.net/26230597/viewspace-1087713/
