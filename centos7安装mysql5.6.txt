@@ -80,6 +80,7 @@ systemctl status mysqld
 创建远程账户
 mysql -h10.117.180.197 -uroot -p
 CREATE USER '1111'@'%' IDENTIFIED BY '11';
+GRANT ALL PRIVILEGES ON *.* TO 'kmadmin'@'%'
 mysql -h10.117.180.197 -uroot -p
 
 

@@ -1,0 +1,200 @@
+https://www.zabbix.com/documentation/3.2/manual/installation/install_from_packages#red_hat_enterprise_linuxcentos
+
+1、下载zabbix文件到/mnt目录
+wget https://fossies.org/linux/misc/zabbix-3.2.6.tar.gz
+或则本地下载上传上去
+
+2、下载mysql安装（参考centos7安装mysql）
+建立zabbix用户：
+GRANT ALL PRIVILEGES ON zabbix.* TO zabbix@'%' IDENTIFIED BY 'zabbix';
+
+
+
+3、解压源文件
+tar -xvzf zabbix-3.2.6.tar.gz
+添加zabbix组
+groupadd zabbix
+添加zabbix用户
+useradd -g zabbix -m zabbix
+进入
+cd database/
+把schema.sql、images.sql、data.sql导入到mysql数据
+
+
+
+4、进入解压目录编译
+./configure --prefix=/usr/local/zabbix --enable-server --enable-agent --with-mysql --with-net-snmp --with-libcurl --with-libxml2
+中途会报错：看具体的错误
+
+参考：http://os.51cto.com/art/201104/252989.htm
+
+yum install gcc net-snmp-devel curl-devel perl-DBI php-gd php-mysql php-bcmath php-mbstring
+yum install mariadb-devel------------------安装完后会多了一个/usr/bin/mysql_config
+yum install libxml2-devel
+yum install net-snmp-devel
+yum install curl-devel
+yum install php-xml 
+
+
+Configuration:
+
+  Detected OS:           linux-gnu
+  Install path:          /usr/local/zabbix
+  Compilation arch:      linux
+
+  Compiler:              gcc
+  Compiler flags:         -g -O2
+
+  Library-specific flags:
+    database:               -I/usr/include/mysql -g  -m64 -fPIC  -g -fabi-version=2 -fno-omit-frame-pointer -fno-strict-aliasing   
+    libXML2:               -I/usr/include/libxml2
+    Net-SNMP:               -I/usr/local/include -I/usr/lib64/perl5/CORE -I. -I/usr/include
+
+  Enable server:         yes
+  Server details:
+    With database:         MySQL
+    WEB Monitoring:        cURL
+    Native Jabber:         no
+    SNMP:                  yes
+    IPMI:                  no
+    SSH:                   no
+    TLS:                   no
+    ODBC:                  no
+    Linker flags:             -L/usr/lib64/mysql        -L/usr/lib64      -rdynamic  
+    Libraries:               -lmysqlclient      -lxml2    -lnetsnmp      -lcurl -lm -ldl  -lresolv 
+
+  Enable proxy:          no
+
+  Enable agent:          yes
+  Agent details:
+    TLS:                   no
+    Linker flags:              -rdynamic  
+    Libraries:                 -lcurl -lm -ldl  -lresolv 
+
+  Enable Java gateway:   no
+
+  LDAP support:          no
+  IPv6 support:          no
+
+***********************************************************
+*            Now run 'make install'                       *
+*                                                         *
+*            Thank you for using Zabbix!                  *
+*              <http://www.zabbix.com>                    *
+***********************************************************
+
+编译完成后会显示上面这些信息
+然后执行
+make && make install
+
+安装完后在/etc/service下会显示如下：没有则添加
+zabbix-agent    10050/tcp               # Zabbix Agent
+zabbix-agent    10050/udp               # Zabbix Agent
+zabbix-trapper  10051/tcp               # Zabbix Trapper
+zabbix-trapper  10051/udp               # Zabbix Trapper
+
+cat /etc/services |grep zabbix
+
+
+5、安装php和php-fpm
+yum install php-fpm
+查看
+php-fpm -h
+启动php
+php-fpm -y /etc/php-fpm.d/www.conf
+修改user和group为nginx
+查看端口是否启动：lsof -i:9000
+chkconfig php-fpm on    #设置php-fpm自启动 
+
+yum install php
+会在/etc下面多了php.ini
+修改：
+cgi.fix_pathinfo=0
+这一项默认被注释并且值为1，根据官方文档的说明，这里为了当文件不存在时，阻止Nginx将请求发送到后端的PHP-FPM模块，从而避免恶意脚本注入的攻击，所以此项应该去掉注释并设置为0
+
+
+
+6、nginx配置php
+通过nginx -v查看是否有FastCGI模块，没有则安装
+把解压目录的复制到nginx下
+cp -rf /mnt/zabbix-3.2.6/frontends/php/ /mnt/kmall-client/zabbix/
+配置nginx
+location ~\.(php)?$ {
+      root //mnt/kmall-client/zabbix;
+      fastcgi_pass 127.0.0.1:9000;
+      fastcgi_index index.php;
+      fastcgi_param SCRIPT_FILENAME /mnt/kmall-client/zabbix$fastcgi_script_name;
+      include    fastcgi_params;
+    }
+
+校验：
+测试nginx和php是否正常，在/mnt/kmall-client/zabbix下新建info.php内容如下：
+<?php
+phpinfo();
+?>
+
+重启nginx
+
+
+
+
+ln -s /usr/local/zabbix/sbin/* /usr/local/sbin/ #添加系统软连接
+ln -s /usr/local/zabbix/bin/* /usr/local/bin/ #添加系统软连接
+firewall-cmd --permanent --add-port=10050/tcp
+firewall-cmd --permanent --add-port=10051/tcp
+firewall-cmd --reload
+
+
+参考：
+http://www.osyunwei.com/archives/7984.html
+
+
+date.timezone= Asia/Shanghai
+ memory_limit= 128M
+post_max_size= 16M
+max_execution_time= 300
+max_input_time= 300
+session.auto_start= 0
+mbstring.func_overload= 1
+
+
+Unable to create the configuration file
+手动上传到nginx代理php目录下的conf目录
+
+zabbix默认用户
+admin/zabbix
+
+
+启动agent
+vi /etc/zabbix/zabbix_agentd.conf 
+  修改此文件中的下面三个值
+    Server=192.168.92.8     //安装zabbix服务端的机器的IP
+    ServerActive=192.168.92.8 //安装zabbix服务端的机器的IP
+    Hostname=09          //随便起，我这以被监控的机器的ip作为Hostname
+    
+http://www.ttlsa.com/zabbix/zabbix_agentd-conf-description/
+
+
+Received empty response from Zabbix Agent at [127.0.0.1]. Assuming that agent dropped connection because of access permission
+
+ListenIP和ZBX_SERVER要一致
+ListenIP和Server要一致
+$ZBX_SERVER      = '10.117.180.197';
+
+
+显示乱码的话，把windows/fonnts下的微软黑体字号上传到php里的fonts目录里
+
+http://partner.kidmadeto.com/index.html?foot=shop&uuid=3283d492-cb03-4277-8d4e-ff3a91894ad3&master=16101700142&from=groupmessage&isappinstalled=0
+
+
+rpm -qa | grep zabbix
+zabbix-agent-3.2.6-1.el7.x86_64
+zabbix-web-3.2.6-1.el7.noarch
+zabbix-get-3.2.6-1.el7.x86_64
+zabbix-web-mysql-3.2.6-1.el7.noarch
+zabbix-server-mysql-3.2.6-1.el7.x86_64
+rpm -e --nodeps zabbix-agent-3.2.6-1.el7.x86_64
+rpm -e --nodeps zabbix-web-3.2.6-1.el7.noarch
+rpm -e --nodeps zabbix-get-3.2.6-1.el7.x86_64
+rpm -e --nodeps zabbix-web-mysql-3.2.6-1.el7.noarch
+rpm -e --nodeps zabbix-server-mysql-3.2.6-1.el7.x86_64

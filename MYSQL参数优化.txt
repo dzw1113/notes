@@ -51,7 +51,13 @@ socket=/mnt/mysql/data/mysql/mysql.sock
 default-character-set = utf8
 --------------仿照阿里云的rds配置调整----------------结束
 
+参考：mysql启动参数
+http://blog.csdn.net/liu251890347/article/details/47998249
 
+max_connections参数无效。
+SHOW VARIABLES LIKE '%CONNECTION%';
+
+SET GLOBAL max_connections=2050;
 
 
 back_log:值指出在MySQL暂时停止回答新请求之前的短时间内多少个请求可以被存在堆栈中。也就是说，如果MySql的连接数达到max_connections时，新来的请求将会被存在堆栈中，以等待某一连接释放资源，该堆栈的数量即back_log，如果等待连接的数量超过back_log，将不被授予连接资源。将会报：
@@ -146,3 +152,33 @@ mysqld --verbose --help >>e:\\cmd.txt
 
 -- 按任意键退出
 pause>null
+
+
+
+
+
+主从复制下
+
+gtid_mode=on
+enforce_gtid_consistency=on
+log-slave-updates=1
+
+MySQL主从复制几个重要的启动选项
+　　(1)　 log-slave-updates
+　　log-slave-updates这个参数用来配置从服务器的更新是否写入二进制日志，这个选项默认是不打开的，但是，如果这个从服务器B是服务器A的从服务器，同时还作为服务器C的主服务器，那么就需要开发这个选项，这样它的从服务器C才能获得它的二进制日志进行同步操作
+　　(2)　 master-connect-retry
+　　master-connect-retry这个参数是用来设置在和主服务器连接丢失的时候，重试的时间间隔，默认是60秒
+　　(3)　 read-only
+　　read-only是用来限制普通用户对从数据库的更新操作，以确保从数据库的安全性，不过如果是超级用户依然可以对从数据库进行更新操作
+　　(4)　 slave-skip-errors
+　　在复制过程中，由于各种的原因，从服务器可能会遇到执行BINLOG中的SQL出错的情况，在默认情况下，服务器会停止复制进程，不再进行同步，等到用户自行来处理。
+　　Slave-skip-errors的作用就是用来定义复制过程中从服务器可以自动跳过的错误号，当复制过程中遇到定义的错误号，就可以自动跳过，直接执行后面的SQL语句。
+　　--slave-skip-errors=[err1,err2,…….|ALL]
+　　但必须注意的是，启动这个参数，如果处理不当，很可能造成主从数据库的数据不同步，在应用中需要根据实际情况，如果对数据完整性要求不是很严格，那么这个选项确实可以减轻维护的成本
+
+
+
+MySQL管理利器：
+http://www.ttlsa.com/mysql/mysql-manager-tools-mysql-utilities-tutorial/
+自动故障转移：
+http://www.ttlsa.com/mysql/mysql-automatic-failover/

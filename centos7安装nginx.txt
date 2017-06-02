@@ -158,3 +158,16 @@ http://www.jb51.net/article/49049.htm
 --add-module=../echo-nginx-module       \  
 --add-module=../redis2-nginx-module     \  
 --add-module=../set-misc-nginx-module
+
+
+
+
+
+----------------------------rpm°²×°----------------------------
+rpm -ivh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+
+yum info nginx
+
+yum install nginx
+
+nginx -V
