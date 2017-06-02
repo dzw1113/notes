@@ -1,0 +1,163 @@
+1、location分为 普通location 和 正则location
+
+正则location:只有带有 "~" 或者"~*"前缀的属于 正则location
+~      #波浪线表示执行一个正则匹配，区分大小写
+~*    #表示执行一个正则匹配，不区分大小写
+
+普通location:“=”，“^~ ”和“@ ” 和无任何前缀的（例如只有  "location /name"） 属于普通location
+^~    #^~表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录
+=      #进行普通字符精确匹配
+@     #"@" 定义一个命名的 location，使用在内部定向时，例如 error_page, try_files
+
+
+2、
+匹配顺序：
+= 精确匹配会第一个被处理。如果发现精确匹配，nginx停止搜索其他匹配。
+普通字符匹配，正则表达式规则和长的块规则将被优先和查询匹配，也就是说如果该项匹配还需去看有没有正则表达式匹配和更长的匹配
+^~ 则只匹配该规则，nginx停止搜索其他匹配，否则nginx会继续处理其他location指令。
+最后匹配理带有"~"和"~*"的指令，如果找到相应的匹配，则nginx停止搜索其他匹配；当没有正则表达式或者没有正则表达式被匹配的情况下，那么匹配程度最高的逐字匹配指令会被使用。
+
+官方：
+=前缀的指令严格匹配这个查询。如果找到，停止搜索。
+所有剩下的常规字符串，最长的匹配。如果这个匹配使用^?前缀，搜索停止。
+正则表达式，在配置文件中定义的顺序。
+如果第3条规则产生匹配的话，结果被使用。否则，使用第2条规则的结果。
+
+
+案例：
+location  = / {
+  # 只匹配"/".
+  [ configuration A ] 
+}
+location  / {
+  # 匹配任何请求，因为所有请求都是以"/"开始
+  # 但是更长字符匹配或者正则表达式匹配会优先匹配
+  [ configuration B ] 
+}
+location ^~ /images/ {
+  # 匹配任何以 /images/ 开始的请求，并停止匹配 其它location
+  [ configuration C ] 
+}
+location ~* .(gif|jpg|jpeg)$ {
+  # 匹配以 gif, jpg, or jpeg结尾的请求. 
+  # 但是所有 /images/ 目录的请求将由 [Configuration C]处理.   
+  [ configuration D ] 
+}
+error_page 404 = @fallback;
+location @fallback {
+  proxy_pass http://www.baidu.com;
+}
+
+
+/ -> 符合configuration A
+/documents/document.html -> 符合configuration B
+/images/1.gif -> 符合configuration C
+/documents/1.jpg ->符合 configuration D
+/nofound.html--->nginx 找不到对应的页面，于是 error_page 404 = @fallback ，请求被代理到 http://www.baidu.com ，
+于是 nginx 给 http://www.baidu.com 发送了 GET /nofound.html ，但/nofound.html 页面在百度也不存在，百度 302 跳转到错误页。
+
+
+
+
+指令：
+try_files
+语法: try_files file1 [file2 ... filen] fallback
+
+需求：
+现在有这样一个需求，网站根目录下有静态文件，static目录下也有静态文件，static目录下的静态文件是程序批量生成的，我想让nginx在地址不变的前提下优先使用static目录里面的文件，如果不存在再使用根目录下的静态文件，比如访问首页http://example.com/index.html则nginx返回/static/index.html，如果不存在返回/index.html
+if (-e $document_root/static$request_uri) {
+ rewrite ^/(.*)$ /static/$1 break;
+ break;
+}
+
+
+
+
+
+
+
+
+
+
+
+------------------Nginx中的upstream轮询机制--------------------------
+
+1、轮询(weight=1) 
+默认选项，当weight不指定时，各服务器weight相同， 每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。
+upstream bakend {
+server 192.168.1.10;
+server 192.168.1.11;
+}
+
+
+2、weight 
+指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。 
+ 如果后端服务器down掉，能自动剔除。 
+ 比如下面配置，则1.11服务器的访问量为1.10服务器的两倍。
+upstream bakend {
+server 192.168.1.10 weight=1;
+server 192.168.1.11 weight=2;
+}
+
+
+3、ip_hash 
+每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session不能跨服务器的问题。 
+如果后端服务器down掉，要手工down掉。
+upstream resinserver{
+ip_hash;
+server 192.168.1.10:8080;
+server 192.168.1.11:8080;
+}
+ 
+
+4、fair（第三方插件） 
+按后端服务器的响应时间来分配请求，响应时间短的优先分配。
+upstream resinserver{
+server 192.168.1.10:8080;
+server 192.168.1.11:8080;
+server 192.168.1.12:8080 backup;  
+fair;
+}
+
+5、url_hash（第三方插件） 
+ 按访问url的hash结果来分配请求，使每个url定向到同一个后端服务器，后端服务器为缓存服务器时比较有效。 
+ 在upstream中加入hash语句，hash_method是使用的hash算法
+upstream resinserver{
+server 192.168.1.10:8080;
+server 192.168.1.11:8080;
+hash $request_uri;
+hash_method crc32;
+}
+
+
+设备的状态有: 
+1.down 表示单前的server暂时不参与负载 
+2.weight 权重,默认为1。 weight越大，负载的权重就越大。 
+3.max_fails 允许请求失败的次数默认为1。当超过最大次数时，返回proxy_next_upstream 模块定义的错误 
+4.fail_timeout max_fails次失败后，暂停的时间。 
+5.backup 备用服务器, 其它所有的非backup机器down或者忙的时候，请求backup机器。所以这台机器压力会最轻。
+
+参考：
+http://blog.chinaunix.net/xmlrpc.php?r=blog/article&id=5040071&uid=28541347
+http://www.linuxidc.com/Linux/2015-02/113102.htm
+http://blog.chinaunix.net/xmlrpc.php?r=blog/article&id=5040071&uid=28541347
+
+参考：
+可以深究点：select、poll、epoll----------------TODO
+http://www.cnblogs.com/ljygoodgoodstudydaydayup/p/3858275.html
+http://blog.csdn.net/wma664620/article/details/54234132
+老男孩教育最新课程select和epoll简单区别比喻
+
+select的调用复杂度是线性的，即O(n)。
+举个例子，一个保姆照看一群孩子，如果把孩子是否需要尿尿比作网络IO事件，select的作用就好比这个保姆挨个询问每个孩子：你要尿尿吗？
+如果孩子回答是，保姆则把孩子拎出来放到另外一个地方。
+当所有孩子询问完之后，保姆领着这些要尿尿的孩子去上厕所（处理网络IO事件）。
+
+还是以保姆照看一群孩子为例，
+在epoll机制下，保姆不再需要挨个的询问每个孩子是否需要尿尿。
+取而代之的是，每个孩子如果自己需要尿尿的时候，自己主动的站到事先约定好的地方，而保姆的职责就是查看事先约定好的地方是否有孩子。
+如果有小孩，则领着孩子去上厕所（网络事件处理）。
+因此，epoll的这种机制，能够高效的处理成千上万的并发连接，而且性能不会随着连接数增加而下降。
+
+
+
