@@ -1,0 +1,49 @@
+
+http://jtester.googlecode.com/svn/m2/改名了test4j,所以在otter里包含了jmockit-0.999.10和jtester-1.1.8
+
+
+
+启动
+com.alibaba.otter.manager.deployer.OtterManagerLauncher
+
+
+
+/manager.biz---------------------------------------------------dao和service
+报警服务service定义,暂时先简单实现：利用dragoon的报警推送机制进行短信，邮件，旺旺信息等报警
+/manager.biz/src/main/java/com/alibaba/otter/manager/biz/common/alarm/AlarmService.java
+zookeeper状态查询接口
+/manager.biz/src/main/java/com/alibaba/otter/manager/biz/autokeeper/AutoKeeperStatService.java
+/manager.biz---------------------------------------------------
+
+
+/manager.deployer---------------------------------------------------
+main形式调用jetty
+/manager.deployer/src/main/java/com/alibaba/otter/manager/deployer/OtterManagerLauncher.java
+/manager.deployer/src/main/java/com/alibaba/otter/manager/deployer/JettyEmbedServer.java
+/manager.deployer---------------------------------------------------
+
+/manager.web-----------------------------------------------action-web
+
+
+-javaagent:E:\canal\otter\lib\jmockit-0.999.10.jar
+
+-javaagent:E:\canal\agent\target\agent-0.0.1-SNAPSHOT.jar
+/shared.common-------辅助类和实体model----集成spring-jtester的tdd测试
+
+集成jtester，并扩展相关内容
+/shared.common/src/main/java/com/alibaba/otter/shared/common/utils/test/JTesterxClassPathXmlApplicationContext.java
+/shared.common
+
+<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<testNGArtifactName>org.testng:testng</testNGArtifactName>
+					<argLine>-javaagent:"${settings.localRepository}/mockit/jmockit/0.999.10/jmockit-0.999.10.jar"</argLine>
+					<useSystemClassLoader>true</useSystemClassLoader>
+					<suiteXmlFiles>
+					</suiteXmlFiles>
+				</configuration>
+			</plugin>
+

@@ -1,0 +1,15 @@
+JMX在Java编程语言中定义了应用程序以及网络管理和监控的体系结构、设计模式、应用程序接口以及服务。
+通常使用JMX来监控系统的运行状态或管理系统的某些方面，比如清空缓存、重新加载配置文件等
+优点是可以非常容易的使应用程序被管理
+伸缩性的架构使每个JMX Agent服务可以很容易的放入到Agent中，每个JMX的实现都提供几个核心的Agent服务，你也可以自己编写服务，服务可以很容易的部署，取消部署。
+主要作用是提供接口，允许有不同的实现
+
+
+JMX 基础Demo
+http://wujiu.iteye.com/blog/2220828
+
+jmx扩展
+https://my.oschina.net/zhongl/blog/29075
+
+JMX超详细解读
+http://www.cnblogs.com/dongguacai/p/5900507.html

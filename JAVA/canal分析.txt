@@ -1,0 +1,276 @@
+mysql EVENT TYPE
+
+ROTATE_EVENT
+当binlog文件的大小达到max_binlog_size的值或者执行flush logs命令时，binlog会发生切换，
+这个时候会在当前的binlog日志添加一个ROTATE_EVENT事件，用于指定下一个日志的名称和位置。
+
+官方文档
+https://github.com/alibaba/canal/wiki/Introduction
+
+---------------------------------/canal.parse.dbsync-------------------------------------------------START--mysql的event解析目录
+本地数据库binlog解析
+/canal.parse.dbsync/src/test/java/com/taobao/tddl/dbsync/binlog/DirectLogFetcherTest.java
+本地binlog文件解析
+/canal.parse.dbsync/src/test/java/com/taobao/tddl/dbsync/binlog/FileLogFetcherTest.java
+---------------------------------/canal.parse.dbsync-------------------------------------------------end--mysql的event解析目录
+
+
+
+---------------------------------/canal.meta-------------------------------------------------START--
+mysql---metadata说明----不知道此mata是不是彼mata
+http://www.cnblogs.com/cchust/p/3826398.html
+http://www.cnblogs.com/cchust/p/4303929.html
+基于文件刷新的metaManager实现
+/canal.meta/src/main/java/com/alibaba/otter/canal/meta/FileMixedMetaManager.java
+内存版实现
+/canal.meta/src/main/java/com/alibaba/otter/canal/meta/MemoryMetaManager.java
+基于定时刷新的策略的mixed实现
+/canal.meta/src/main/java/com/alibaba/otter/canal/meta/PeriodMixedMetaManager.java
+组合memory + zookeeper的使用模式
+/canal.meta/src/main/java/com/alibaba/otter/canal/meta/MixedMetaManager.java
+zk 版本的 canal manager
+/canal.meta/src/main/java/com/alibaba/otter/canal/meta/ZooKeeperMetaManager.java	
+---------------------------------/canal.meta-------------------------------------------------end--
+
+
+
+
+
+---------------------------------/canal.common-------------------------------------------------start-zk的连接、读写实现
+针对server的running节点控制
+/canal.common/src/main/java/com/alibaba/otter/canal/common/zookeeper/running/ServerRunningMonitor.java
+
+------ServerRunningTest
+
+实现一个互斥实现，基于Cocurrent中的{@linkplain AbstractQueuedSynchronizer}实现了自己的sync <br/>
+应用场景：系统初始化/授权控制，没权限时阻塞等待。有权限时所有线程都可以快速通??
+/canal.common/src/main/java/com/alibaba/otter/canal/common/utils/BooleanMutex.java
+
+服务端running状态信息
+/canal.common/src/main/java/com/alibaba/otter/canal/common/zookeeper/running/ServerRunningData.java
+
+存储结构
+/canal.common/src/main/java/com/alibaba/otter/canal/common/zookeeper/ZookeeperPathUtils.java
+---------------------------------/canal.common-------------------------------------------------end-zk的连接、读写实现
+
+
+
+---------------------------------/canal.parse.driver--------------------------------------------------start
+mysql解析驱动	
+//基于mysql socket协议的链接实现
+/canal.parse.driver/src/main/java/com/alibaba/otter/canal/parse/driver/mysql/MysqlConnector.java
+/canal.parse.driver/src/test/java/com/alibaba/otter/canal/parse/driver/mysql/MysqlConnectorTest.java
+---------------------------------/canal.parse.driver--------------------------------------------------end
+
+
+
+
+---------------------------------/canal.protocol--------------------------------------------------start
+Protobuf协议格式详解----protobuf 是google开源的一个序列化框架，类似xml，json，最大的特点是基于二进制，比传统的XML表示同样一段内容要短小得多
+http://blog.csdn.net/erlib/article/details/46345111
+用proto命令生成java文??------http://blog.csdn.net/zhanyan_x/article/details/12691771
+mysql-dump协议？没太??
+/canal.protocol/src/main/java/com/alibaba/otter/canal/protocol/CanalProtocol.proto
+---------------------------------/canal.protocol--------------------------------------------------end
+
+
+---------------------------------/canal.parse--------------------------------------------------start
+解析sql
+/canal.parse/src/test/java/com/alibaba/otter/canal/parse/inbound/mysql/MysqlDumpTest.java
+基于向mysql server复制binlog实现(依赖上面)
+/canal.parse/src/main/java/com/alibaba/otter/canal/parse/inbound/mysql/MysqlEventParser.java
+支持可切换的数据复制控制器
+/canal.parse/src/main/java/com/alibaba/otter/canal/parse/CanalHASwitchable.java
+数据复制控制器
+/canal.parse/src/main/java/com/alibaba/otter/canal/parse/CanalEventParser.java
+---------------------------------/canal.parse--------------------------------------------------end
+
+
+
+
+---------------------------------/canal.server--------------------------------------------------start
+Embeded : 对latency和可用性都有比较高的要求，自己又能hold住分布式的相关技术(比如failover)
+/canal.server/src/main/java/com/alibaba/otter/canal/server/embedded/CanalServerWithEmbedded.java
+基于netty网络服务的server实现
+/canal.server/src/main/java/com/alibaba/otter/canal/server/netty/CanalServerWithNetty.java
+WINDOWS查看端口占用情况
+netstat -ano|findstr "1088"
+
+netty  server demo
+/canal.server/src/test/java/com/alibaba/otter/canal/server/CanalServerWithNettyTest.java
+Embeded server demo
+/canal.server/src/test/java/com/alibaba/otter/canal/server/BaseCanalServerWithEmbededTest.java
+---------------------------------/canal.server--------------------------------------------------end
+
+
+
+---------------------------------/canal.sink--------------------------------------------------start----Parser和Store链接器，进行数据过滤，加工，分发的工作---依赖filter
+event事件消费者
+/canal.sink/src/main/java/com/alibaba/otter/canal/sink/CanalEventSink.java------------------------爷爷级别
+
+mysql binlog数据对象输出
+/canal.sink/src/main/java/com/alibaba/otter/canal/sink/entry/EntryEventSink.java------------------------粑粑级别
+
+归并排序-------TODO
+基于归并排序的sink处理
+几点设计说明：
+1. 多库合并时，需要控制不满足groupSize的条件，就会阻塞其他库的合并操作.  (比如刚启动时会所有通道正常工作才开始合并，或者中间过程出现主备切换)
+2. 库解析出现问题，但没有进行主备切换，此时需要通过{@linkplain CanalEventDownStreamHandler}进行定时监听合并数据的产生时间间隔 
+   a. 因为一旦库解析异常，就不会再sink数据，此时groupSize就会一直缺少，就会阻塞其他库的合并，也就是不会有数据写入到store中
+/canal.sink/src/main/java/com/alibaba/otter/canal/sink/entry/group/GroupEventSink.java------------------------孙子级别
+
+---------------------------------/canal.sink--------------------------------------------------endParser和Store链接器，进行数据过滤，加工，分发的工作---依赖filter
+
+
+---------------------------------/canal.filter--------------------------------------------------start--数据过滤机制
+event解析过滤
+/canal.filter/src/main/java/com/alibaba/otter/canal/filter/CanalEventFilter.java
+---------------------------------/canal.filter--------------------------------------------------end--数据过滤机制
+
+
+
+---------------------------------/canal.store--------------------------------------------------start---数据存储
+canel数据存储接口
+/canal.store/src/main/java/com/alibaba/otter/canal/store/CanalEventStore.java
+store回收机制
+/canal.store/src/main/java/com/alibaba/otter/canal/store/AbstractCanalStoreScavenge.java
+store空间回收机制，信息采集以及控制何时调用{@linkplain CanalEventStore}.cleanUtil()接口
+/canal.store/src/main/java/com/alibaba/otter/canal/store/CanalStoreScavenge.java
+基于内存buffer构建内存memory store
+/canal.store/src/main/java/com/alibaba/otter/canal/store/memory/MemoryEventStoreWithBuffer.java
+---------------------------------/canal.store--------------------------------------------------end---数据存储
+
+
+
+---------------------------------/canal.client--------------------------------------------------start
+canal客户端（zk形式）
+/canal.client/src/test/java/com/alibaba/otter/canal/client/running/ClientRunningTest.java
+---------------------------------/canal.client--------------------------------------------------end
+
+
+---------------------------------/canal.deployer--------------------------------------------------start
+canal独立版本启动的入口类
+/canal.deployer/src/main/java/com/alibaba/otter/canal/deployer/CanalLauncher.java
+canal调度控制器
+/canal.deployer/src/main/java/com/alibaba/otter/canal/deployer/CanalController.java
+---------------------------------/canal.deployer--------------------------------------------------start
+
+
+
+分期canal启动过程:
+启动类：
+com.alibaba.otter.canal.deployer.CanalLauncher
+canal调度控制器
+com.alibaba.otter.canal.deployer.CanalController
+
+启动canal.server(embededCanalServer和canalServer)
+查看canal.properties配置
+指定canal.zkServers
+在zk里创建目录
+if (StringUtils.isNotEmpty(zkServers)) {
+    zkclientx = ZkClientx.getZkClient(zkServers);
+    // 初始化系统目录
+    zkclientx.createPersistent(ZookeeperPathUtils.DESTINATION_ROOT_NODE, true);
+    zkclientx.createPersistent(ZookeeperPathUtils.CANAL_CLUSTER_ROOT_NODE, true);
+}
+处理下ip为空，默认使用hostIp暴露到zk中
+canal.ip
+
+canal.auto.scan
+初始化monitor机制
+
+
+
+
+-------Guava18
+MigrateMap-----MapMaker
+Google Collections中的MapMaker融合了 Weak Reference ， 线程安全 ， 高并发性能 ， 异步超时清理 ， 自定义构建元素 等强大功能于一身
+参考：
+https://www.ibm.com/developerworks/cn/java/j-lo-googlecollection/
+http://www.bysocket.com/?p=834
+
+指定
+canal.id= 1
+canal.ip= 填写
+canal.port= 11111
+canal.zkServers= 填写
+
+
+[zk: localhost:2181(CONNECTED) 1] 
+[zk: localhost:2181(CONNECTED) 1] ls /
+[otter, zookeeper]
+[zk: localhost:2181(CONNECTED) 2] ls /otter 
+[canal]
+[zk: localhost:2181(CONNECTED) 3] ls /otter/canal
+[cluster, destinations]
+[zk: localhost:2181(CONNECTED) 4] ls /otter/canal/destinations
+[example]
+[zk: localhost:2181(CONNECTED) 5] ls /otter/canal/destinations/example
+[cluster, running]
+[zk: localhost:2181(CONNECTED) 6] ls /otter/canal/destinations/example/cluster
+[ip:11111]
+[zk: localhost:2181(CONNECTED) 7] ls /otter/canal/destinations/example/running
+[]
+[zk: localhost:2181(CONNECTED) 8] ls /otter/canal/                            
+
+cluster        destinations
+[zk: localhost:2181(CONNECTED) 8] ls /otter/canal/cluster
+[ip:11111]
+[zk: localhost:2181(CONNECTED) 9]     
+
+
+-------mysql关系
+95uat作为master
+87redis作为物理slave
+121java作为87redis的逻辑(canal)slave
+
+
+
+"D:\Program Files\Java\jdk1.8.0_131\bin\javaw.exe" 
+-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57587 
+-Dfile.encoding=UTF-8 
+-classpath E:\canal\canal\deployer\target\classes;E:\canal\canal\server\target\classes;E:\canal\canal\instance\core\target\classes;
+E:\canal\canal\common\target\classes;C:\Users\dzw\.m2\repository\io\netty\netty-all\4.1.6.Final\netty-all-4.1.6.Final.jar;
+C:\Users\dzw\.m2\repository\org\apache\zookeeper\zookeeper\3.4.5\zookeeper-3.4.5.jar;
+C:\Users\dzw\.m2\repository\org\jboss\netty\netty\3.2.5.Final\netty-3.2.5.Final.jar;
+C:\Users\dzw\.m2\repository\com\github\sgroschupf\zkclient\0.1\zkclient-0.1.jar;
+C:\Users\dzw\.m2\repository\log4j\log4j\1.2.14\log4j-1.2.14.jar;C:\Users\dzw\.m2\repository\commons-io\commons-io\2.4\commons-io-2.4.jar;
+C:\Users\dzw\.m2\repository\commons-lang\commons-lang\2.6\commons-lang-2.6.jar;C:\Users\dzw\.m2\repository\org\springframework\spring\2.5.6\spring-2.5.6.jar;
+C:\Users\dzw\.m2\repository\commons-logging\commons-logging\1.1.1\commons-logging-1.1.1.jar;
+C:\Users\dzw\.m2\repository\com\alibaba\fastjson\1.2.28\fastjson-1.2.28.jar;C:\Users\dzw\.m2\repository\com\google\guava\guava\18.0\guava-18.0.jar;
+C:\Users\dzw\.m2\repository\ch\qos\logback\logback-core\1.1.3\logback-core-1.1.3.jar;
+C:\Users\dzw\.m2\repository\ch\qos\logback\logback-classic\1.1.3\logback-classic-1.1.3.jar;
+C:\Users\dzw\.m2\repository\org\slf4j\jcl-over-slf4j\1.7.12\jcl-over-slf4j-1.7.12.jar;
+C:\Users\dzw\.m2\repository\org\slf4j\slf4j-api\1.7.12\slf4j-api-1.7.12.jar;E:\canal\canal\store\target\classes;E:\canal\canal\protocol\target\classes;
+C:\Users\dzw\.m2\repository\com\google\protobuf\protobuf-java\2.6.1\protobuf-java-2.6.1.jar;
+E:\canal\canal\meta\target\classes;
+E:\canal\canal\parse\target\classes;
+E:\canal\canal\sink\target\classes;
+E:\canal\canal\dbsync\target\classes;
+E:\canal\canal\filter\target\classes;
+C:\Users\dzw\.m2\repository\com\googlecode\aviator\aviator\2.2.1\aviator-2.2.1.jar;
+C:\Users\dzw\.m2\repository\commons-beanutils\commons-beanutils\1.8.2\commons-beanutils-1.8.2.jar;
+C:\Users\dzw\.m2\repository\oro\oro\2.0.8\oro-2.0.8.jar;
+E:\canal\canal\driver\target\classes;
+E:\canal\canal\instance\spring\target\classes;
+E:\canal\canal\instance\manager\target\classes 
+com.alibaba.otter.canal.deployer.CanalLauncher
+
+
+
+/usr/java/jdk1.7.0_79/bin/java -server -Xms2048m -Xmx3072m -Xmn1024m -XX:SurvivorRatio=2 -XX:PermSize=96m -XX:MaxPermSize=256m -Xss256k -XX:-Us
+eAdaptiveSizePolicy -XX:MaxTenuringThreshold=15 -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+UseCMSCompactAtFullCollection 
+-XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true 
+-Dfile.encoding=UTF-8 -DappName=otter-canal -Dlogback.configurationFile=/mnt/canal/bin/../conf/logback.xml -Dcanal.conf=/mnt/canal/bin/../conf/canal.properties 
+-classpath .:/mnt/canal/bin/../conf:/mnt/canal/bin/../lib/zookeeper-3.4.5.jar:/mnt/canal/bin/../lib/zkclient-0.1.jar:/mnt/canal/bin/../lib/spring-2.5.6.jar:
+/mnt/canal/bin/../lib/slf4j-api-1.7.12.jar:/mnt/canal/bin/../lib/protobuf-java-2.6.1.jar:/mnt/canal/bin/../lib/oro-2.0.8.jar:
+/mnt/canal/bin/../lib/netty-all-4.1.6.Final.jar:/mnt/canal/bin/../lib/netty-3.2.5.Final.jar:/mnt/canal/bin/../lib/logback-core-1.1.3.jar:
+/mnt/canal/bin/../lib/logback-classic-1.1.3.jar:/mnt/canal/bin/../lib/log4j-1.2.14.jar:/mnt/canal/bin/../lib/jcl-over-slf4j-1.7.12.jar:
+/mnt/canal/bin/../lib/guava-18.0.jar:/mnt/canal/bin/../lib/fastjson-1.2.28.jar:/mnt/canal/bin/../lib/commons-logging-1.1.1.jar:
+/mnt/canal/bin/../lib/commons-lang-2.6.jar:/mnt/canal/bin/../lib/commons-io-2.4.jar:/mnt/canal/bin/../lib/commons-beanutils-1.8.2.jar:
+/mnt/canal/bin/../lib/canal.store-1.0.24.jar:/mnt/canal/bin/../lib/canal.sink-1.0.24.jar:/mnt/canal/bin/../lib/canal.server-1.0.24.jar:
+/mnt/canal/bin/../lib/canal.protocol-1.0.24.jar:/mnt/canal/bin/../lib/canal.parse.driver-1.0.24.jar:/mnt/canal/bin/../lib/canal.parse.dbsync-1.0.24.jar:
+/mnt/canal/bin/../lib/canal.parse-1.0.24.jar:/mnt/canal/bin/../lib/canal.meta-1.0.24.jar:/mnt/canal/bin/../lib/canal.instance.spring-1.0.24.jar:
+/mnt/canal/bin/../lib/canal.instance.manager-1.0.24.jar:/mnt/canal/bin/../lib/canal.instance.core-1.0.24.jar:/mnt/canal/bin/../lib/canal.filter-1.0.24.jar:
+/mnt/canal/bin/../lib/canal.deployer-1.0.24.jar:/mnt/canal/bin/../lib/canal.common-1.0.24.jar:/mnt/canal/bin/../lib/aviator-2.2.1.jar: 
+com.alibaba.otter.canal.deployer.CanalLauncher

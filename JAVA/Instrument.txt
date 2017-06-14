@@ -1,0 +1,27 @@
+
+java Instrumentation指的是可以用独立于应用程序之外的代理（agent）程序来监测和协助运行在JVM上的应用程序
+Java SE5一种形式：premain（命令行，即在真正的应用程序（包含main方法的程序）main方法启动前启动一个代理程序）
+Java SE6中由两种应用Instrumentation的方式，premain（命令行）和agentmain（运行时）
+
+当一个代理jar包中的manifest文件中既有Premain-Class又有Agent-Class时，如果以命令行方式在VM启动前指定代理jar，则使用Premain-Class；
+反之如果在VM启动后，动态添加代理jar，则使用Agent-Class
+
+
+参考：
+JVMTI全称JVM Tool Interface
+JVM源码分析之javaagent原理完全解读
+http://www.infoq.com/cn/articles/javaagent-illustrated
+instrument实践-demo
+http://jiangbo.me/blog/2012/02/21/java-lang-instrument/
+http://blog.csdn.net/yczz/article/details/51656386
+vm级别的aop
+http://xj84.iteye.com/blog/1221105
+javaAgent 参数
+http://blog.csdn.net/scorpio3k/article/details/6745443
+Java性能监控之Instrumentation
+http://www.cnblogs.com/orionhp/p/6362625.html
+Java Instrument动态修改字节码入门-添加方法耗时监控
+http://blog.csdn.net/tterminator/article/details/54381618
+
+/usr/java/jdk1.7.0_79/jre/lib/amd64/libjdwp.so
+/usr/java/jdk1.7.0_79/jre/lib/amd64/libinstrument.so

@@ -1,0 +1,55 @@
+
+
+com.alibaba.otter.node.deployer.OtterLauncher
+
+/node.common
+
+
+
+/node.etl------------------------------------------------------------	
+com.alibaba.otter.node.etl.common.datasource---------------基于dhcp构建datasource
+抽象所有的data source处理service,并且返回DataMedia的meta信息
+/node.etl/src/main/java/com/alibaba/otter/node/etl/common/datasource/DataSourceService.java
+
+一个pipeline下面有一组DataSource
+/node.etl/src/main/java/com/alibaba/otter/node/etl/common/datasource/impl/DBDataSourceService.java
+com.alibaba.otter.node.etl.common.datasource---------------基于dhcp构建datasource
+
+
+com.alibaba.otter.node.etl.common.db---------------数据库操作
+
+com.alibaba.otter.node.etl.common.io---------------io操作
+
+
+com.alibaba.otter.node.etl.common.jmx---------------JMX获取进程信息
+扩展实现spring的jmx connector
+/node.etl/src/main/java/com/alibaba/otter/node/etl/common/jmx/JmxConnectorServerFactoryBean.java
+
+统计每个stage的运行信息
+/node.etl/src/main/java/com/alibaba/otter/node/etl/common/jmx/StageAggregationCollector.java
+com.alibaba.otter.node.etl.common.jmx---------------JMX获取进程信息
+
+
+com.alibaba.otter.node.etl.common.pipe---------------管道操作util（http、rpc、memory）
+
+
+com.alibaba.otter.node.etl.common.task---------------s/e/t/l
+select,extract,transform,load parent Thread操作
+/node.etl/src/main/java/com/alibaba/otter/node/etl/common/task/GlobalTask.java
+包含以下动作：
+com.alibaba.otter.node.etl.select
+com.alibaba.otter.node.etl.extract
+com.alibaba.otter.node.etl.transform
+com.alibaba.otter.node.etl.load
+
+
+JMX的MBEAN信息
+/node.etl/src/main/java/com/alibaba/otter/node/etl/OtterController.java
+/node.etl/src/main/java/com/alibaba/otter/node/etl/OtterControllerMBean.java
+
+
+/node.etl------------------------------------------------------------	
+
+
+JETTY集成测试   手动在e盘建立tmp目录，新建文本可以通过http://localhost:8081/download/   查看到目录已经内容
+/node.etl/src/test/java/com/alibaba/otter/node/etl/common/jetty/JettyEmbedIntegration.java
