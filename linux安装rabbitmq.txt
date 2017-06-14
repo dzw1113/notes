@@ -56,3 +56,7 @@ http://xxxxxxx:15672/
 
 rabbitmqctl查看队列情况
 http://blog.csdn.net/u014087707/article/details/53976576
+
+
+firewall-cmd --permanent --zone=public --add-port=5672/tcp
+firewall-cmd --reload
