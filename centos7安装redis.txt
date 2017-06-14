@@ -143,3 +143,10 @@ d88a688ac8bd2e7a5a0ec99a2357c2fbdd798472 10.117.180.197:7009 slave 1e8c87f4b8755
 
 7001是跪着的。704当了master
 
+
+firewall-cmd --permanent --zone=public --add-port=7001/tcp
+firewall-cmd --permanent --zone=public --add-port=7002/tcp
+firewall-cmd --permanent --zone=public --add-port=7003/tcp
+firewall-cmd --permanent --zone=public --add-port=7004/tcp
+firewall-cmd --permanent --zone=public --add-port=7005/tcp
+firewall-cmd --permanent --zone=public --add-port=7006/tcp
