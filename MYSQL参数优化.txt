@@ -21,6 +21,7 @@ event_scheduler=1
 innodb_disable_sort_file_cache=1
 innodb_file_format=Barracuda
 innodb_file_format_max=Barracuda
+open_files_limit=25000 #部分机器不生效
 innodb_open_files=3000
 innodb_spin_wait_delay=30
 innodb_sync_spin_loops=100

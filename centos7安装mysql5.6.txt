@@ -87,3 +87,22 @@ mysql -h10.117.180.197 -uroot -p
 加入开机启动
 systemctl is-enabled mysql.service;echo $?
 chkconfig --levels 235 mysqld on
+
+查看进程打开最大数
+lsof -p 15312 | wc -l
+
+cat /proc/15312/limits
+
+centos7下mysql打开文件最大数调整：
+vim /etc/systemd/system/mysql.service
+
+[Service]
+User=mysql
+Group=mysql
+
+LimitNOFILE=30000
+
+查看系统最大打开文件数
+sysctl -a|grep fs.file-max
+参考：
+http://www.mamicode.com/info-detail-1382100.html
