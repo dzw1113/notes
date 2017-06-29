@@ -1,0 +1,13 @@
+
+
+参考：
+http://blog.csdn.net/dream_hai/article/details/52137998
+
+options选项	
+http://docs.videojs.com/tutorial-options.html#techorder
+
+字母插件（好像用不到，有vtt格式）
+https://www.npmjs.com/package/videojs-ass
+
+H5支持HLS-----不过flash是默认支持的
+https://www.npmjs.com/package/videojs-contrib-hls
