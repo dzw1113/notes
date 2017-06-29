@@ -1,0 +1,165 @@
+格式转换 (将file.avi 转换成output.flv)
+ffmpeg -i file.avi output.flv
+
+-i 表示输入文件
+:现在有个视频video.avi，有个音频 audio.mp3，将其合并成output.avi
+
+从视频里提取声音(声音与视频的分离)
+fmpeg -i 人生若只如初见.flv -vn r.mp3 从flv 文件 中提取声音并保存为mp3 格式
+-vn : 表示忽略视频 估计是video no 之类的缩写
+ffmpeg -i 人生若只如初??.flv -an r.flv 只留视频不留声音
+-an : 表示忽略声音估计是audio no 之类的缩写
+
+列设备
+ffmpeg -list_devices true -f dshow -i dummy 
+
+从视频里获取图片
+ffmpeg -i D:\\ffmpeg\\bin\\aaa.mp4 -y -f image2 -ss 119 -vframes 1 -s 350*240 D:\ffmpeg\bin\imgs\119.jpg
+
+把视频的前３０帧转换成一个Animated Gif
+ffmpeg -i cc745615e273d51a33ed5795afd79d01.mp4 -vframes 30 -y -f gif a.gif
+
+截取指定时间的缩微图
+ffmpeg -i cc745615e273d51a33ed5795afd79d01.mp4 -y -f image2 -ss 8 -t 0.001 -s 350x240 test.jpg
+
+#输入压缩的尺寸，使用h264进行压缩。（报错！！！！！） 
+ffmpeg –i cc745615e273d51a33ed5795afd79d01.mp4 –vcodec libx264 –s 1280*720 -acodec copy –f mp4 asw.mp4 
+----------------------------摄像头
+编码为H.264，保存为本地文件
+ffmpeg -f dshow -i video="USB2.0 HD UVC WebCam" -vcodec libx264 mycamera.mp4
+
+直接播放摄像头的数据
+ffplay -f dshow -i video="USB2.0 HD UVC WebCam"
+
+#通过第三方录制
+--音频
+ffmpeg -f dshow -i audio="virtual-audio-capturer" yo.mp4
+--音频加桌面录制
+ffmpeg -f dshow -i audio="virtual-audio-capturer":video="screen-capture-recorder" yo.avi
+
+---------------------------桌面
+录制桌面（通过gdi录制）
+ffmpeg -f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size 1366x768 -i desktop out.mpg
+
+
+
+---
+视频加麦克风----转mp4好像有问题
+ffmpeg -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" bsa.avi
+
+
+----------windows推流到nginx+rtmp
+--视频加麦克风推流
+ffmpeg.exe -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" -vcodec libx264 -preset:v ultrafast -tune:v zerolatency -f flv rtmp://127.0.0.1/live/demo
+ 
+以视频文件推流
+ffmpeg -re -i cc745615e273d51a33ed5795afd79d01.mp4 -c copy -f flv rtmp://127.0.0.1/live/demo
+ 
+把推流视频以mp4形式存储----需要播放器播放 
+ffmpeg.exe -i rtmp://192.168.2.93/live/demo -vcodec libx264 mycamera222.mp4
+
+--熊猫tv（web）直播拉流
+ffpaly https://pl21.live.panda.tv/live_panda/2317adc43c62d2f47e0e60c2a4d4a2ec.flv
+
+---斗鱼tv（web）直播拉流（失败，403）
+ffplay http://122.228.22.124/hdla.douyucdn.cn/live/288016rlols5_900.flv?wsAuth=4cb80e250623eeac033087737f6b5d7c&token=web-douyu-0-288016-e843f50c7d48731eb2968e33458e9feb&logo=0&expire=0&did=2C2AD3A82BF0BBE525703B887CBCB7A4&ver=2017062701&wshc_tag=0&wsts_tag=59522516&wsid_tag=b4affdf4&wsiphost=ipdbm
+  
+-----HLS推流------延迟几秒
+ffmpeg.exe -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" -vcodec libx264 -pix_fmt yuv420p -f flv rtmp://127.0.0.1/hls/demo
+  
+  
+目睹直播价格：
+1小时1人3块
+  
+  
+-------------------------ffmpeg在centos7下安装/WINDOWS直接在官网下载包
+导入GPG key
+rpm --import http://packages.atrpms.net/RPM-GPG-KEY.atrpms  
+安装ATRPMS Repo
+rpm -ivh http://dl.atrpms.net/all/atrpms-repo-6-7.el6.x86_64.rpm
+选择ATRPMS Repo安装ffmpeg
+yum -y --enablerepo=atrpms install ffmpeg ffmpeg-devel
+验证ffmpeg版本
+ffmpeg -version
+  
+常用参数说明：
+主要参数：
+-i 设定输入流
+-f 设定输出格式
+-ss 开始时间
+视频参数：
+-b 设定视频流量，默认为200Kbit/s
+-r 设定帧速率，默认为25
+-s 设定画面的宽与高
+-aspect 设定画面的比例
+-vn 不处理视频
+-vcodec 设定视频编解码器，未设定时则使用与输入流相同的编解码器
+音频参数：
+-ar 设定采样率
+-ac 设定声音的Channel数
+-acodec 设定声音编解码器，未设定时则使用与输入流相同的编解码器
+-an 不处理音频
+
+参考：
+http://ffmpeg.org/download.html
+windows下载直接解压
+校验：切换到命令行的bin目录执行，ffmpeg -version
+
+
+参考：
+FFmpeg命令大全和使用教程
+http://www.pggho.com/thread-203-1-1.html
+
+FFmpeg获取DirectShow设备数据（摄像头，录屏）
+http://blog.csdn.net/leixiaohua1020/article/details/38284961
+
+ffmpeg 相关资料整理 
+http://blog.sina.com.cn/s/blog_99cc8f0d0101sx9j.html
+
+FFmpeg常用基本命令
+http://www.cnblogs.com/dwdxdy/p/3240167.html
+
+http://blog.csdn.net/leixiaohua1020/article/details/39702113
+
+http://ffmpeg.org/documentation.html
+
+使用ffmpeg视频格式转换、视频截图、视频采集、屏幕录制
+http://www.kuqin.com/shuoit/20131208/336842.html
+
+Windows下ffmpeg录制视频命令
+http://blog.csdn.net/chlk118/article/details/50995597
+
+使用FFmpeg进行屏幕录像和录音
+http://www.cucer.cn/2016/03/10/ffmpeg-screen-capture.html
+
+real-time buffer 409% full! frame dropped!----avi可以mp4不行----32位操作系统导致
+https://github.com/rdp/screen-capture-recorder-to-video-windows-free/issues/2
+
+https://github.com/rdp/screen-capture-recorder-to-video-windows-free
+
+http://www.cnblogs.com/tinywan/p/6337504.html
+
+centos安装
+http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
+
+ffmpeg
+http://www.cnblogs.com/tinywan/p/6202345.html
+
+基于nginx的hls直播系统
+http://blog.csdn.net/cjsafty/article/details/9108587
+
+
+h5上播放rtmp
+http://www.tuicool.com/articles/ERVVRzm
+
+video.js
+http://videojs.com/getting-started/
+
+国内视频网站没有大规模运用html5的原因
+https://segmentfault.com/q/1010000000669571
+
+安装参考：
+centos6、7安装ffmpeg
+http://www.cnblogs.com/metasequoia/p/6219771.html
+http://www.scalescale.com/tips/nginx/ffmpeg-php-ffmpeg-centos-6-7/
+
