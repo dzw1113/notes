@@ -1,0 +1,50 @@
+GET
+通过请求URI得到资源
+POST,
+用于添加新的内容
+PUT
+用于修改某个内容
+DELETE,
+删除某个内容
+CONNECT,
+用于代理进行传输，如使用SSL
+OPTIONS
+询问可以执行哪些方法
+PATCH,
+部分文档更改
+PROPFIND, (wedav)
+查看属性
+PROPPATCH, (wedav)
+设置属性
+MKCOL, (wedav)
+创建集合（文件夹）
+COPY, (wedav)
+拷贝
+MOVE, (wedav)
+移动
+LOCK, (wedav)
+加锁
+UNLOCK (wedav)
+解锁
+TRACE
+用于远程诊断服务器
+HEAD
+类似于GET, 但是不返回body信息，用于检查对象是否存在，以及得到对象的元数据
+
+HTTP应答码
+　HTTP应答码也称为状态码，它反映了Web服务器处理HTTP请求状态。HTTP应答码由3位数字构成，其中首位数字定义了应答码的类型：
+　1XX－信息类(Information),表示收到Web浏览器请求，正在进一步的处理中
+　2XX－成功类（Successful）,表示用户请求被正确接收，理解和处理例如：200 OK
+  3XX-重定向类(Redirection),表示请求没有成功，客户必须采取进一步的动作。
+  4XX-客户端错误(Client Error)，表示客户端提交的请求有错误 例如：404 NOT Found，意味着请求中所引用的文档不存在。
+  5XX-服务器错误(Server Error)表示服务器不能完成对请求的处理：如 500
+
+参考：
+HTTP深入浅出 http请求
+http://www.cnblogs.com/yin-jingyu/archive/2011/08/01/2123548.html
+
+浅谈HTTP中Get与Post的区别
+http://www.cnblogs.com/hyddd/archive/2009/03/31/1426026.html
+
+99% 的人都理解错了 HTTP 中 GET 与 POST 的区别
+http://www.tuicool.com/articles/faAJNzR
