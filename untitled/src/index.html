@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Video.js Sandbox</title>
+
+    <!-- Add ES5 shim and sham for IE8 -->
+    <script src="../node_modules/videojs-ie8/dist/videojs-ie8.js"></script>
+
+    <!-- Load the source files -->
+    <link href="../node_modules/video.js/dist/video-js.css" rel="stylesheet" type="text/css">
+    <script src="../node_modules/video.js/dist/video.js"></script>
+    <script src="../node_modules/videojs-flash/dist/videojs-flash.js"></script>
+
+    <link href="../node_modules/libjass/libjass.css" rel="stylesheet">
+    <script src="../node_modules/libjass/libjass.js"></script>
+
+    <!-- Set the location of the flash SWF -->
+    <script>
+        videojs.options.flash.swf = '../node_modules/videojs-swf/dist/video-js.swf';
+    </script>
+
+    <script>
+        videojs.addLanguage('es', {
+            "Play": "播放",
+            "Pause": "暂停",
+            "Current Time": "当前时间",
+            "Duration Time": "时长",
+            "Remaining Time": "剩余时间",
+            "Stream Type": "媒体流类型",
+            "LIVE": "直播",
+            "Loaded": "加载完毕",
+            "Progress": "进度",
+            "Fullscreen": "全屏",
+            "Non-Fullscreen": "退出全屏",
+            "Mute": "静音",
+            "Unmute": "取消静音",
+            "Playback Rate": "播放速度",
+            "Subtitles": "字幕",
+            "subtitles off": "关闭字幕",
+            "Captions": "内嵌字幕",
+            "captions off": "关闭内嵌字幕",
+            "Chapters": "节目段落",
+            "Close Modal Dialog": "关闭弹窗",
+            "Descriptions": "描述",
+            "descriptions off": "关闭描述",
+            "Audio Track": "音轨",
+            "You aborted the media playback": "视频播放被终止",
+            "A network error caused the media download to fail part-way.": "网络错误导致视频下载中途失败。",
+            "The media could not be loaded, either because the server or network failed or because the format is not supported.": "视频因格式不支持或者服务器或网络的问题无法加载。",
+            "The media playback was aborted due to a corruption problem or because the media used features your browser did not support.": "由于视频文件损坏或是该视频使用了你的浏览器不支持的功能，播放终止。",
+            "No compatible source was found for this media.": "无法找到此视频兼容的源。",
+            "The media is encrypted and we do not have the keys to decrypt it.": "视频已加密，无法解密。",
+            "Play Video": "播放视频",
+            "Close": "关闭",
+            "Modal Window": "弹窗",
+            "This is a modal window": "这是一个弹窗",
+            "This modal can be closed by pressing the Escape key or activating the close button.": "可以按ESC按键或启用关闭按钮来关闭此弹窗。",
+            ", opens captions settings dialog": ", 开启标题设置弹窗",
+            ", opens subtitles settings dialog": ", 开启字幕设置弹窗",
+            ", opens descriptions settings dialog": ", 开启描述设置弹窗",
+            ", selected": ", 选择"
+        });
+    </script>
+
+
+
+</head>
+<body>
+
+
+
+<video id="vid1" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264"
+       poster="http://vjs.zencdn.net/v/oceans.png"
+       data-setup=''>
+    <!--<source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">-->
+    <!--<source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm">-->
+    <!--<source src="http://vjs.zencdn.net/v/oceans.ogv" type="video/ogg">-->
+    <!--<source src="rtmp://live.hkstv.hk.lxdns.com/live/hks" type="rtmp/flv" />-->
+    <source src="rtmp://127.0.0.1/hls/demo" type="rtmp/flv" />
+    <!--<source src="rtmp://127.0.0.1/live/demo" type="rtmp/flv" />-->
+    <track kind="captions" src="../node_modules/video.js/dist/examples/shared/example-captions.vtt" srclang="en" label="English"></track><!-- Tracks need an ending tag thanks to IE9 -->
+    <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+</video>
+
+<ul class="icon-list">
+    <li><span class="vjs-icon-play"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="vjs-icon-pause"></span> <code>.vjs-icon-pause</code></li>
+    <li><span class="vjs-icon-volume-mute"></span> <code>.vjs-icon-volume-mute</code></li>
+    <li><span class="vjs-icon-volume-low"></span> <code>.vjs-icon-volume-low</code></li>
+    <li><span class="vjs-icon-volume-mid"></span> <code>.vjs-icon-volume-mid</code></li>
+    <li><span class="vjs-icon-volume-high"></span> <code>.vjs-icon-volume-high</code></li>
+    <li><span class="vjs-icon-fullscreen-enter"></span> <code>.vjs-icon-fullscreen-enter</code></li>
+    <li><span class="vjs-icon-fullscreen-exit"></span> <code>.vjs-icon-fullscreen-exit</code></li>
+    <li><span class="vjs-icon-square"></span> <code>.vjs-icon-square</code></li>
+    <li><span class="vjs-icon-spinner"></span> <code>.vjs-icon-spinner</code></li>
+    <li><span class="vjs-icon-subtitles"></span> <code>.vjs-icon-subtitles</code></li>
+    <li><span class="vjs-icon-captions"></span> <code>.vjs-icon-captions</code></li>
+    <li><span class="vjs-icon-chapters"></span> <code>.vjs-icon-chapters</code></li>
+    <li><span class="vjs-icon-share"></span> <code>.vjs-icon-share</code></li>
+    <li><span class="vjs-icon-cog"></span> <code>.vjs-icon-cog</code></li>
+    <li><span class="vjs-icon-circle"></span> <code>.vjs-icon-circle</code></li>
+    <li><span class="vjs-icon-circle-outline"></span> <code>.vjs-icon-circle-outline</code></li>
+    <li><span class="vjs-icon-circle-inner-circle"></span> <code>.vjs-icon-circle-inner-circle</code></li>
+
+    <li><span class="play"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="play-circle"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="pause"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="volume-mute"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="volume-low"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="volume-mid"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="volume-high"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="fullscreen-enter"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="fullscreen-exit"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="square"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="spinner"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="subtitles"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="captions"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="chapters"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="share"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="cog"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="circle"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="circle-outline"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="circle-inner-circle"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="hd"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="cancel"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="replay"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="facebook"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="gplus"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="linkedin"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="twitter"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="tumblr"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="pinterest"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="audio-description"></span> <code>.vjs-icon-play</code></li>
+    <li><span class="audio"></span> <code>.vjs-icon-play</code></li>
+
+</ul>
+<script>
+    var vid = document.getElementById("vid1");
+    var player = videojs(vid, {
+//        sources: [{
+//            src: 'rtmp://live.hkstv.hk.lxdns.com/live/hks',
+//            type: 'rtmp/flv'
+//        }],
+        techOrder: ['flash', 'html5'],
+        languages: ['zh-CN'],//无用
+        controlBar: {
+            children: [
+                'playToggle',//播放按钮
+                'volumePanel',//声音
+                'currentTimeDisplay',
+                'timeDivider',//时间
+                'durationDisplay',//持续时间
+                'progressControl',//进度条
+                'liveDisplay',//直播选项
+                'remainingTimeDisplay',
+                'customControlSpacer',
+                'playbackRateMenuButton',//回放
+                'chaptersButton',//章节、集
+                'descriptionsButton',//描述
+                'subtitlesButton',//副标题
+                'captionsButton',//字幕
+                'subsCapsButton',//副字幕
+                'audioTrackButton',//声道
+                'fullscreenToggle'//全屏选项
+            ]
+        }
+    });
+</script>
+
+</body>
+</html>

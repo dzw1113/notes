@@ -1,0 +1,16 @@
+{
+  "name": "untitled",
+  "version": "0.0.1",
+  "dependencies": {
+    "global": "^4.3.2",
+    "video.js": "^6.1.0",
+    "videojs-swf": "^5.4.0",
+    "safe-json-parse": "4.0.0",
+    "tsml": "1.0.1",
+    "videojs-font": "2.0.0",
+    "videojs-ie8": "1.1.2",
+    "videojs-vtt.js": "0.12.4",
+    "videojs-flash" : "2.0.0",
+    "videojs-ass": ">=0.5.0 < 0.8.0"
+  }
+}
