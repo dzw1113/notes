@@ -65,6 +65,14 @@ STOP SLAVE;
 通过阿里的canal单元测试ing。
 
 
+relay_log_info_repository=table
+master_info_repository=table
+relay_log_recovery=on
+
+ALTER TABLE slave_master_info ENGINE=INNODB;   
+ALTER TABLE slave_relay_log_info ENGINE=INNODB;  
+ALTER TABLE slave_worker_info ENGINE=INNODB;
+
 
 集群参考
 http://blog.itpub.net/25723371/viewspace-1977389/
@@ -82,3 +90,16 @@ Data Node节点数据会被尽量放在内存中，对内存要求大
 
 mysql cluster集群优缺点（推荐：优缺点很明细）
 http://blog.itpub.net/26230597/viewspace-1087713/
+
+MySQL5.6中设置relay_log_info_repository 为TABLE
+http://blog.csdn.net/lwei_998/article/details/45393615
+
+RELAY调整
+http://blog.csdn.net/zhaoyangjian724/article/details/46755103
+
+slave库写redo、binlog不实时丢数据的场景
+http://www.cnblogs.com/polestar/p/6097266.html
+
+SELECT  *   FROM MySQL.slave_master_info;
+SELECT  *   FROM mysql.slave_relay_log_info; 
+SELECT * FROM mysql.slave_worker_info 

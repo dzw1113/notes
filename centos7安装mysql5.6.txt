@@ -106,3 +106,10 @@ LimitNOFILE=30000
 sysctl -a|grep fs.file-max
 参考：
 http://www.mamicode.com/info-detail-1382100.html
+
+
+mysql打开文件最大数调整
+https://dev.mysql.com/doc/refman/5.5/en/packet-too-large.html
+
+mysql 优化之开启慢查询并分析原因
+http://blog.csdn.net/haiqiao_2010/article/details/25138099

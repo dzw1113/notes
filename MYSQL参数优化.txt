@@ -37,11 +37,23 @@ lower_case_table_names=1
 default-storage-engine=INNODB
 max_connections=2050
 max_user_connections=2050
-max_allowed_packet=10M
+max_allowed_packet=50M
 sort_buffer_size=1M
 query_cache_size=3M
 
 binlog_cache_size=4M
+
+gtid_mode=on
+enforce_gtid_consistency=on
+log-slave-updates=1
+
+# 
+relay_log_info_repository=table
+master_info_repository=table
+relay_log_recovery=on
+
+slow-query-log=on 
+
 [mysqld_safe]
 log-error=/var/log/mysqld.log
 pid-file=/var/run/mysqld/mysqld.pid

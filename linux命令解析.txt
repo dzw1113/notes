@@ -92,3 +92,11 @@ last 命令：
 
 last -f /var/log/wtmp
 /var/log/wtmp也是一个二进制文件，记录每个用户的登录次数和持续时间等信息。
+
+
+
+tcpdump:linux抓去数据包的‘头’---dump the traffic on a network
+tcpdump tcp port 23 and host 210.27.48.1
+
+Linux tcpdump命令详解
+http://www.cnblogs.com/ggjucheng/archive/2012/01/14/2322659.html
