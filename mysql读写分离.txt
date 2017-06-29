@@ -1,0 +1,1 @@
+https://dev.mysql.com/doc/mysql-router/2.1/en/mysql-router-configuration-file-example.html
