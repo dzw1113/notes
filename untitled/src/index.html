@@ -11,10 +11,12 @@
     <link href="../node_modules/video.js/dist/video-js.css" rel="stylesheet" type="text/css">
     <script src="../node_modules/video.js/dist/video.js"></script>
     <script src="../node_modules/videojs-flash/dist/videojs-flash.js"></script>
+    <script src=""></script>
 
     <link href="../node_modules/libjass/libjass.css" rel="stylesheet">
     <script src="../node_modules/libjass/libjass.js"></script>
 
+    <script src="../node_modules/videojs-contrib-hls/dist/videojs-contrib-hls.js"></script>
     <!-- Set the location of the flash SWF -->
     <script>
         videojs.options.flash.swf = '../node_modules/videojs-swf/dist/video-js.swf';
@@ -77,8 +79,9 @@
     <!--<source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm">-->
     <!--<source src="http://vjs.zencdn.net/v/oceans.ogv" type="video/ogg">-->
     <!--<source src="rtmp://live.hkstv.hk.lxdns.com/live/hks" type="rtmp/flv" />-->
-    <source src="rtmp://127.0.0.1/hls/demo" type="rtmp/flv" />
+    <!--<source src="rtmp://127.0.0.1/hls/demo" type="rtmp/flv" />-->
     <!--<source src="rtmp://127.0.0.1/live/demo" type="rtmp/flv" />-->
+    <!--<source src="rtmp://tv.kidmadeto.com/hls/demo" type="application/vnd.apple.mpegurl" />-->
     <track kind="captions" src="../node_modules/video.js/dist/examples/shared/example-captions.vtt" srclang="en" label="English"></track><!-- Tracks need an ending tag thanks to IE9 -->
     <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
 </video>
@@ -136,36 +139,106 @@
 
 </ul>
 <script>
-    var vid = document.getElementById("vid1");
-    var player = videojs(vid, {
-//        sources: [{
-//            src: 'rtmp://live.hkstv.hk.lxdns.com/live/hks',
-//            type: 'rtmp/flv'
-//        }],
-        techOrder: ['flash', 'html5'],
-        languages: ['zh-CN'],//无用
-        controlBar: {
-            children: [
-                'playToggle',//播放按钮
-                'volumePanel',//声音
-                'currentTimeDisplay',
-                'timeDivider',//时间
-                'durationDisplay',//持续时间
-                'progressControl',//进度条
-                'liveDisplay',//直播选项
-                'remainingTimeDisplay',
-                'customControlSpacer',
-                'playbackRateMenuButton',//回放
-                'chaptersButton',//章节、集
-                'descriptionsButton',//描述
-                'subtitlesButton',//副标题
-                'captionsButton',//字幕
-                'subsCapsButton',//副字幕
-                'audioTrackButton',//声道
-                'fullscreenToggle'//全屏选项
-            ]
+    function IsPC() {
+        var userAgentInfo = navigator.userAgent;
+        var Agents = ["Android", "iPhone",
+            "SymbianOS", "Windows Phone",
+            "iPad", "iPod"];
+        var flag = true;
+        for (var v = 0; v < Agents.length; v++) {
+            if (userAgentInfo.indexOf(Agents[v]) > 0) {
+                flag = false;
+                break;
+            }
         }
-    });
+        return flag;
+    }
+
+    var vid = document.getElementById("vid1");
+
+
+    var u = navigator.userAgent;
+    var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+    var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+
+
+
+    if(isiOS){
+        alert("apple"+isiOS);
+        var player = videojs(vid, {
+            languages: ['zh-CN'],//无用
+            flash: {
+                hls: {
+                    withCredentials: true
+                }
+            },
+            controlBar: {
+                children: [
+                    'playToggle',//播放按钮
+                    'volumePanel',//声音
+                    'currentTimeDisplay',
+                    'timeDivider',//时间
+                    'durationDisplay',//持续时间
+                    'progressControl',//进度条
+                    'liveDisplay',//直播选项
+                    'remainingTimeDisplay',
+                    'customControlSpacer',
+                    'playbackRateMenuButton',//回放
+                    'chaptersButton',//章节、集
+                    'descriptionsButton',//描述
+                    'subtitlesButton',//副标题
+                    'captionsButton',//字幕
+                    'subsCapsButton',//副字幕
+                    'audioTrackButton',//声道
+                    'fullscreenToggle'//全屏选项
+                ]
+            }
+        });
+        player.src({
+            src: 'http://tv.kidmadeto.com/hls/demo.m3u8',
+            type: 'application/x-mpegURL',
+            withCredentials: true
+        });
+        alert(1);
+    }
+    if(isAndroid){
+        alert("anzhuo"+isAndroid);
+    }
+    if(IsPC()){
+        alert("pc"+IsPC());
+        var player = videojs(vid, {
+            techOrder: ['flash', 'html5'],
+            languages: ['zh-CN'],//无用
+            controlBar: {
+                children: [
+                    'playToggle',//播放按钮
+                    'volumePanel',//声音
+                    'currentTimeDisplay',
+                    'timeDivider',//时间
+                    'durationDisplay',//持续时间
+                    'progressControl',//进度条
+                    'liveDisplay',//直播选项
+                    'remainingTimeDisplay',
+                    'customControlSpacer',
+                    'playbackRateMenuButton',//回放
+                    'chaptersButton',//章节、集
+                    'descriptionsButton',//描述
+                    'subtitlesButton',//副标题
+                    'captionsButton',//字幕
+                    'subsCapsButton',//副字幕
+                    'audioTrackButton',//声道
+                    'fullscreenToggle'//全屏选项
+                ]
+            }
+        });
+        player.src({
+            src: 'https://tv.kidmadeto.com/hls/demo.m3u8',
+            type: 'application/x-mpegURL',
+            withCredentials: true
+        });
+    }
+
+
 </script>
 
 </body>

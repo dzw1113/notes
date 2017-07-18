@@ -1,3 +1,56 @@
+码率（BPS/MBPS---Per(每) Second(秒)）：码流（Data Rate）是指视频文件在单位时间内使用的数据流量，也叫码率或码流率，是视频编码中画面质量控制中最重要的部分，一般我们用的单位是Kb/s或者Mb/s。
+一般来说同样分辨率下，视频文件的码流越大，压缩比就越小，画面质量就越高。
+码流越大，说明单位时间内取样率越大，数据流，精度就越高，处理出来的文件就越接近原始文件，图像质量越好，画质越清晰，要求播放设备的解码能力也越高。
+
+帧率（Frames Per Second）：一帧就是一副静止的画面，连续的帧就形成动画，如电视图象等。
+我们通常说帧数，简单地说，就是在1秒钟时间里传输的图片的帧数，也可以理解为图形处理器每秒钟能够刷新几次，通常用fps（Frames Per Second）表示。
+每一帧都是静止的图象，快速连续地显示帧便形成了运动的假象。
+高的帧率可以得到更流畅、更逼真的动画。每秒钟帧数 (fps) 愈多，所显示的动作就会愈流畅
+
+分辨率：视频分辨率是指视频成像产品所成图像的大小或尺寸。常见的视像分辨率有352×288，176×144，640×480，1024×768。
+在成像的两组数字中，前者为图片长度，后者为图片的宽度，两者相乘得出的是图片的像素，
+长宽比一般为4：3. 　目前监控行业中主要使用Qcif(176×144）、CIF(352×288）、HALF D1(704×288）、D1(704×576）等几种分辨率。
+
+
+帧率、码流与分辨率之间关系
+公式:
+带宽 / (码流 * 8) = 同时在线人数
+文件大小 = 时间×码率/8
+
+
+一个视频文件的大小为5.86M,播放时长为3分7秒:
+1,该文件对应的码流就是
+5.86 * 1024 * 1024 * 8 / (3 * 60 + 7) =262872.95657754bps
+
+2,10M独享带宽能支撑的同时在线人数
+10* 1024 * 1024 / 262872.95657754 =39.889078498294
+
+3,支撑1000人同时在线的系统最少需要的带宽数为
+262872* 1000 / (1024 * 1024) = 250.69427490234M
+
+
+
+ffmpeg -y -i "test.avi" -title "Test" -vcodec xvid -s 368x208 -r 29.97 - b 1500 -acodec aac -ac 2 -ar 24000 -ab 128 -vol 200 -f psp -muxvb 768 "test.***" 
+
+    # 参数解释： 
+    -y（覆盖输出文件，即如果1.***文件已经存在的话，不经提示就覆盖掉了） 
+    -i "1.avi"（输入文件是和ffmpeg在同一目录下的1.avi文件，可以自己加路径，改名字） 
+    -title "Test"（在PSP中显示的影片的标题） 
+    -vcodec xvid（使用XVID编码压缩视频，不能改的） 
+    -s 368x208（输出的分辨率为368x208，注意片源一定要是16:9的不然会变形） 
+    -r 29.97（帧数，一般就用这个吧） 
+    -b 1500（视频数据流量，用-b xxxx的指令则使用固定码率，数字随便改，1500以上没效果；还可以用动态码率如：-qscale 4和-qscale 6，4的质量比6高） 
+    -acodec aac（音频编码用AAC） 
+    -ac 2（声道数1或2） 
+    -ar 24000（声音的采样频率，好像PSP只能支持24000Hz） 
+    -ab 128（音频数据流量，一般选择32、64、96、128） 
+    -vol 200（200%的音量，自己改） 
+    -f psp（输出psp专用格式） 
+    -muxvb 768（好像是给PSP机器识别的码率，一般选择384、512和768，我改成1500，PSP就说文件损坏了） 
+    "test.***"（输出文件名，也可以加路径改文件名）
+------------------------------------------------------------视频理论
+
+
 格式转换 (将file.avi 转换成output.flv)
 ffmpeg -i file.avi output.flv
 
@@ -48,9 +101,15 @@ ffmpeg -f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size 1366x768 -i 
 ffmpeg -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" bsa.avi
 
 
-----------windows推流到nginx+rtmp
+--------------------------------windows推流到nginx+rtmp------hls播放器下载VCL播放器
 --视频加麦克风推流
 ffmpeg.exe -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" -vcodec libx264 -preset:v ultrafast -tune:v zerolatency -f flv rtmp://127.0.0.1/live/demo
+
+ffmpeg.exe -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" -vcodec libx264 -preset:v ultrafast -tune:v zerolatency -f flv rtmp://121.41.14.87/live/demo
+ffmpeg.exe -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" -vcodec libx264 -preset:v ultrafast -tune:v zerolatency -f flv rtmp://121.41.14.87/hls/demo
+
+ffmpeg.exe -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" -f mp4 rtmp://121.41.14.87/live/demo
+ 
  
 以视频文件推流
 ffmpeg -re -i cc745615e273d51a33ed5795afd79d01.mp4 -c copy -f flv rtmp://127.0.0.1/live/demo
@@ -66,6 +125,9 @@ ffplay http://122.228.22.124/hdla.douyucdn.cn/live/288016rlols5_900.flv?wsAuth=4
   
 -----HLS推流------延迟几秒
 ffmpeg.exe -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" -vcodec libx264 -pix_fmt yuv420p -f flv rtmp://127.0.0.1/hls/demo
+  
+ffmpeg.exe -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" -vcodec libx264 -preset ultrafast -b:v 400k -s 720x576 -r 25 -f flv rtmp://121.41.14.87/hls/demo 
+ffmpeg.exe -f dshow -i video="USB2.0 HD UVC WebCam":audio="麦克风 (Realtek High Definition Au" -tune zerolatency -vcodec libx264 -preset ultrafast -b:v 400k -s 720x576 -r 25 -f flv rtmp://121.41.14.87/hls/demo 
   
   
 目睹直播价格：
@@ -157,6 +219,9 @@ http://videojs.com/getting-started/
 
 国内视频网站没有大规模运用html5的原因
 https://segmentfault.com/q/1010000000669571
+
+FFMPEG码率控制（视频文件在单位时间内使用的数据流量）
+http://blog.csdn.net/leixiaohua1020/article/details/12720135
 
 安装参考：
 centos6、7安装ffmpeg

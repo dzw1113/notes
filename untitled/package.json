@@ -11,6 +11,7 @@
     "videojs-ie8": "1.1.2",
     "videojs-vtt.js": "0.12.4",
     "videojs-flash" : "2.0.0",
-    "videojs-ass": ">=0.5.0 < 0.8.0"
+    "videojs-ass": ">=0.5.0 < 0.8.0",
+    "videojs-contrib-hls":"^5.7.0"
   }
 }

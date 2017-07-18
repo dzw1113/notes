@@ -9,6 +9,12 @@ tar -xzvf zookeeper-3.4.6.tar.gz -C /mnt/zookeeper/
 
 vim zoo.cfg
 
+initLimit: zookeeper集群中的包含多台server, 其中一台为leader, 集群中其余的server为follower. initLimit参数配置初始化连接时, follower和leader之间的最长心跳时间. 此时该参数设置为5, 说明时间限制为5倍tickTime, 即5*2000=10000ms=10s.
+syncLimit: 该参数配置leader和follower之间发送消息, 请求和应答的最大时间长度. 此时该参数设置为2, 说明时间限制为2倍tickTime, 即4000ms.
+server.X=A:B:C 其中X是一个数字, 表示这是第几号server. 
+A是该server所在的IP地址. B配置该server和集群中的leader交换消息所使用的端口. C配置选举leader时所使用的端口. 
+由于配置的是伪集群模式, 所以各个server的B, C参数必须不同.
+
 mkdir /mnt/zookeeper/zookeeper-3.4.6/data
 mkdir /mnt/zookeeper/zookeeper-3.4.6/logs
 
@@ -24,3 +30,7 @@ source /etc/profile
 firewall-cmd --permanent --zone=public --add-port=2181/tcp
 firewall-cmd --permanent --zone=public --add-port=2180/tcp
 firewall-cmd --permanent --zone=public --add-port=3180/tcp
+
+
+参考：
+http://blog.csdn.net/huangjin0507/article/details/51645061
