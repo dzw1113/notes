@@ -1,0 +1,64 @@
+input{
+  
+ file {
+   path => ["/mnt/jetty/jetty-kmbms/logs/*","/mnt/jetty/jetty-kmbms-clustera/logs/*"]
+   type => "kmbms"
+   sincedb_path => "/mnt/logstash-2.3.3/sincedb_path/logpostion"
+   codec => multiline {
+      pattern => "^DEBUG|INFO|ERROR [0-9][0-9][0-9][0-9]"
+      negate => true
+      what => "previous"
+   }
+ }
+
+ file {
+   path => ["/mnt/jetty/jetty-kmall/logs/*","/mnt/jetty/jetty-kmall-clustera/logs/*"]
+   type => "kmall"
+   sincedb_path => "/mnt/logstash-2.3.3/sincedb_path/logpostion"
+   codec => multiline {
+      pattern => "^DEBUG|INFO|ERROR [0-9][0-9][0-9][0-9]"
+      negate => true
+      what => "previous"
+   }
+ }
+
+ file {
+    path => "/mnt/nginx/kmall/*"
+    type => "uat-visit"
+    sincedb_path => "/mnt/logstash-2.3.3/sincedb_path/logpostion"
+    codec => "json"
+  }
+
+}
+
+
+
+output{
+
+  if [type] == "kmbms"{
+    kafka {
+      workers => 1
+      bootstrap_servers => "localhost:9092"
+      topic_id => "kmbms"
+    }
+  }
+
+
+  if [type] == "kmall"{
+    kafka { 
+      workers => 1
+      bootstrap_servers => "localhost:9092"
+      topic_id => "kmall"
+    }
+  }
+
+  if [type] == "uat-visit"{
+    kafka {
+      workers => 1
+      bootstrap_servers => "localhost:9092"
+      topic_id => "uat-visit"
+    }
+  }
+
+
+}

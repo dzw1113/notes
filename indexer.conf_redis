@@ -1,0 +1,54 @@
+input{
+ 
+ redis{
+   type => "kmbms"
+   host => "127.0.0.1"
+   port => 6379
+   data_type => "list"
+   key => "kmbms"
+ }
+
+ redis{
+   type => "kmall"
+   host => "127.0.0.1"
+   port => 6379
+   data_type => "list"
+   key => "kmall"
+ }
+ 
+ redis{
+    type => "nginx-visit-log"
+    host => "127.0.0.1"
+    port => 6379
+    data_type => "list"
+    key => "nginx-visit-log"
+  }
+ 
+ 
+}
+output{
+
+  if [type] == "kmbms"{
+    elasticsearch{
+      hosts => "127.0.0.1"
+      index => "kmbms-%{+YYYY-MM}"
+    }
+  }
+
+  if [type] == "kmall"{
+    elasticsearch{
+      hosts => "127.0.0.1"
+      index => "kmall-%{+YYYY-MM}"
+    }
+  }
+
+  if [type] == "nginx-visit-log"{
+    elasticsearch{
+      hosts => "127.0.0.1"
+      index => "nginx-visit-log-%{+YYYY-MM}"
+    }
+  }
+
+}
+
+

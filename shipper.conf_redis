@@ -1,0 +1,67 @@
+input{
+  
+ file {
+   path => ["/mnt/jetty/jetty-kmbms/logs/*","/mnt/jetty/jetty-kmbms-clustera/logs/*"]
+   type => "kmbms"
+   sincedb_path => "/mnt/logstash-2.3.3/sincedb_path/logpostion"
+   codec => multiline {
+      pattern => "^DEBUG|INFO|ERROR [0-9][0-9][0-9][0-9]"
+      negate => true
+      what => "previous"
+   }
+ }
+
+ file {
+   path => ["/mnt/jetty/jetty-kmall/logs/*","/mnt/jetty/jetty-kmall-clustera/logs/*"]
+   type => "kmall"
+   sincedb_path => "/mnt/logstash-2.3.3/sincedb_path/logpostion"
+   codec => multiline {
+      pattern => "^DEBUG|INFO|ERROR [0-9][0-9][0-9][0-9]"
+      negate => true
+      what => "previous"
+   }
+ }
+
+ file {
+    path => "/mnt/nginx/kmall/*"
+    type => "nginx-visit-log"
+    sincedb_path => "/mnt/logstash-2.3.3/sincedb_path/logpostion"
+    codec => "json"
+  }
+
+}
+
+
+
+output{
+
+  if [type] == "kmbms"{
+    redis{
+      host => "127.0.0.1"
+      port => 6379
+      data_type => "list"
+      key => "kmbms"
+    }
+  }
+
+
+  if [type] == "kmall"{
+    redis{
+      host => "127.0.0.1"
+      port => 6379
+      data_type => "list"
+      key => "kmall"
+    }
+  }
+
+  if [type] == "nginx-visit-log"{
+    redis{
+      host => "127.0.0.1"
+      port => 6379
+      data_type => "list"
+      key => "nginx-visit-log"
+    }
+  }
+
+
+}

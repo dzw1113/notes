@@ -1,0 +1,47 @@
+input{
+ 
+ kafka {
+    zk_connect => "localhost:2181"
+    topic_id => "kmbms"
+    type => "kmbms"
+ }
+ 
+ kafka {
+    zk_connect => "localhost:2181"
+    topic_id => "kmall"
+    type => "kmall"
+ }
+ 
+ kafka {
+    zk_connect => "localhost:2181"
+    topic_id => "uat-visit"
+    type => "uat-visit"
+ } 
+ 
+}
+output{
+
+  if [type] == "kmbms"{
+    elasticsearch{
+      hosts => "localhost"
+      index => "kmbms-%{+YYYY-MM}"
+    }
+  }
+
+  if [type] == "kmall"{
+    elasticsearch{
+      hosts => "localhost"
+      index => "kmall-%{+YYYY-MM}"
+    }
+  }
+
+  if [type] == "uat-visit"{
+    elasticsearch{
+      hosts => "localhost"
+      index => "nginx-visit-log-%{+YYYY-MM}"
+    }
+  }
+
+}
+
+
