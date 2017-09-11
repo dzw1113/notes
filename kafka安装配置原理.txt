@@ -1,0 +1,590 @@
+官网：
+http://kafka.apache.org/
+
+下载安装配置：
+
+wget http://mirror.bit.edu.cn/apache/kafka/0.11.0.0/kafka_2.11-0.11.0.0.tgz
+
+mv kafka_2.11-0.11.0.0.tgz  /mnt/
+
+cd /mnt/
+
+tar -xzf kafka_2.11-0.11.0.0.tgz
+
+cd kafka_2.11-0.11.0.0/config/
+
+#修改kafka配置文件
+vim server.properties
+
+cd bin/
+启动
+zookeeper-server-start.bat ../../config/zookeeper.properties
+./kafka-server-start.sh ../config/server.properties
+kafka-server-start.bat ../../config/server.properties
+
+nohup /mnt/kafka_2.11-0.11.0.0/bin/kafka-server-start.sh /mnt/kafka_2.11-0.11.0.0/config/server0.properties &>/dev/null &
+启动后会显示配置说明
+[2017-07-17 12:51:29,262] INFO KafkaConfig values
+......
+ 
+./kafka-topics --zookeeper 127.0.0.1:2181 --list
+replication-factor表示该topic需要在不同的broker中保存几份，这里replication-factor设置为2, 表示在两个broker中保存
+--partitions 1  --replication-factor 2------一个分区存两份
+./kafka-topics.sh --zookeeper 127.0.0.1:2181 --create --topic aaa --partitions 1  --replication-factor 1
+
+#生产端
+./kafka-console-producer --broker-list 127.0.0.1:9092 --topic aaa
+kafka-console-producer.bat --broker-list 127.0.0.1:9092 --topic visit-log
+#消费端
+./kafka-console-consumer.sh --zookeeper 127.0.0.1:2181 --topic aaa --from-beginning
+./kafka-console-consumer --zookeeper 127.0.0.1:2181 --topic test1111 --from-beginning
+kafka-console-consumer.bat --zookeeper localhost:2181 --topic topic1 --from-beginning
+查看topic某分区偏移量最大（小）值：time为-1时表示最大值，time为-2时表示最小值------也可以查看文件${log.dirs}/replication-offset-checkpoint
+./kafka-run-class.sh kafka.tools.GetOffsetShell --topic aaa --time -1 --broker-list 127.0.0.1:9092 --partitions 0
+kafka-run-class.bat kafka.tools.GetOffsetShell --topic topic1 --time -1 --broker-list localhost:9092 --partitions 0
+
+为topic t_cdr 增加10个分区
+./kafka-topics.sh --zookeeper 127.0.0.1:2181  --alter --topic aaa --partitions 10
+
+查看topic消费进度:这个会显示出consumer group的offset情况， 必须参数为--group， 不指定--topic，默认为所有topic
+./kafka-run-class.sh kafka.tools.ConsumerOffsetChecker --zookeeper 127.0.0.1:2181 --group pv
+
+
+./kafka-topics.sh --zookeeper 127.0.0.1:2181 --create --topic bbb --partitions 1  --replication-factor 1
+./kafka-console-producer.sh --broker-list 127.0.0.1:9092 --topic bbb
+创建一个console consumer group
+./kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 --topic bbb --from-beginning --new-consumer
+./kafka-consumer-groups.sh --bootstrap-server 127.0.0.1:9092 --list --new-consumer
+
+查看topic分区情况
+./kafka-topics.sh --describe --zookeeper 127.0.0.1:2181 --topic ccc
+kafka-topics.bat --describe --zookeeper localhost:2181 --topic topic1
+
+删除topic   
+./kafka-topics.sh --zookeeper localhost:2181 --delete --topic aaa 
+
+
+kafka-run-class.bat kafka.admin.DeleteTopicCommand --topic topic1 --zookeeper localhost:2181  
+kafka-topics.bat --zookeeper localhost:2181 --delete --topic topic1 
+
+set /consumers/console-consumer-28168/offsets/topic1/0 1288
+set /consumers/console-consumer-6309/offsets/topic1/0 1288
+
+get /consumers/console-consumer-28168/offsets/topic1/0
+get /consumers/console-consumer-6309/offsets/topic1/0
+
+--原理
+1.当生产者将消息发送到Kafka后，就会去立刻通知ZooKeeper，会往zookeeper的节点中去挂，
+   zookeeper中会watch到相关的动作，当watch到相关的数据变化后，会通知消费者去消费消息。
+2.消费者是主动去Pull（拉）kafka中的消息，这样可以降低Broker的压力，因为Broker中的消息是无状态的，Broker也不知道哪个消息是可以消费的
+3.当消费者消费了一条消息后，也必须要去通知ZooKeeper。zookeeper会记录下消费的数据，这样但系统出现问题后就可以还原，可以知道哪些消息已经被消费了
+
+当一个Topic中消息过多时，会对Topic进行分区处理，把消息分到不同的Partition中。
+为什么要分区：
+  是为了对大量的数据进行分而治之，把数据分区，不同的Consumer可以消费不同分区的数据，不同Consumer对数据的消费可以做成并行的，这样可以加快数据处理的速度。
+
+参考：
+文档：快速开始
+http://kafka.apache.org/quickstart
+
+kafka配置说明
+http://blog.csdn.net/beitiandijun/article/details/40582541
+http://www.cnblogs.com/rilley/p/5391268.html
+http://blog.csdn.net/huanggang028/article/details/47830529
+
+生态系统
+https://cwiki.apache.org/confluence/display/KAFKA/Ecosystem
+
+Confluent Platform
+http://docs.confluent.io/3.0.0/quickstart.html
+http://confluent.io/downloads/
+
+jdbc<--->kafka
+https://github.com/confluentinc/kafka-connect-jdbc
+
+Confluent介绍 
+http://www.cnblogs.com/zdfjf/p/5646525.html
+
+Kafka学习(一)：Kafka背景及架构介绍
+http://blog.csdn.net/ZuoAnYinXiang/article/details/50887893
+
+Kafka学习(二)：Kafka的基本结构和概念
+http://blog.csdn.net/ZuoAnYinXiang/article/details/50890322
+
+Kafka学习(三)：Kafka的内部机制深入(持久化，分布式，通讯协议)
+http://blog.csdn.net/zuoanyinxiang/article/details/50902425
+
+Kafka学习(四)：Kafka的安装
+http://blog.csdn.net/ZuoAnYinXiang/article/details/50911950
+
+http://blog.csdn.net/vegetable_bird_001/article/details/51858915
+
+为什么kafka使用磁盘而不是内存
+http://www.cnblogs.com/felixzh/p/6197272.html
+
+kafka文件存储机制
+http://blog.jobbole.com/89174/
+
+kafka-log机制
+http://blog.csdn.net/jewes/article/details/42970799
+
+CRC校验
+http://baike.baidu.com/link?url=fh3pv3GX55BttojGh1QtenYvgvRPCl3POqVRncf79SLXwDNoAEKSh2GzYC19HM7KdXOA9znE6ufsbGHrHtj_87Rew4GIOdCufxQ6M5sMp0C
+
+彻底删除Kafka中的topic
+http://www.cnblogs.com/huxi2b/p/4842695.html
+http://www.cnblogs.com/felixzh/p/5992745.html	
+
+kafka常用命令
+http://www.cnblogs.com/zzt-lovelinlin/p/6228773.html
+http://www.cnblogs.com/xiaodf/p/6093261.html
+
+kafka学习笔记：知识点整理
+http://www.cnblogs.com/cyfonly/p/5954614.html
+
+http://blog.csdn.net/louisliaoxh/article/details/51567515
+
+过期策略
+https://www.iteblog.com/archives/1616.html
+kafka的控制台简单消费offset信息
+./bin/kafka-console-consumer --topic __consumer_offsets --bootstrap-server 120.55.96.133:9092 --formatter "kafka.coordinator.GroupMetadataManager\$OffsetsMessageFormatter" --consumer.config ./etc/kafka/consumer.properties --from-beginning
+./bin/kafka-simple-consumer-shell --topic __consumer_offsets --partition 0 --broker-list 120.55.96.133:9092 --formatter "kafka.coordinator.GroupMetadataManager\$OffsetsMessageFormatter"
+
+
+Kafka 0.8: 多日志文件夹机制
+http://www.cnblogs.com/cruze/p/4242026.html
+
+重置offset
+http://www.cnblogs.com/hd-zg/p/5831219.html
+bin/kafka-run-class kafka.tools.GetOffsetShell --broker-list 120.55.96.133:9092 -topic visitlog --time -2
+
+Kafka Consumer的底层API- SimpleConsumer
+http://blog.csdn.net/tiantang_1986/article/details/50826826
+底层SimpleConsumer需要消费者自己管理offset,自己跟踪offset、自己管理broker leader的变动
+
+Kafka JAVA客户端代码示例--高级应用
+https://my.oschina.net/cloudcoder/blog/299222
+http://xn--jlq582ax31c.xn--fiqs8s/post/236
+ * 高可用的api，依赖zookeeper记录offset
+ * 重置offset用以下方法
+ * 1、set  /consumers/pv/offsets/topic1/0 0
+ * 2、rmr /consumers
+get /consumers/pv/offsets/topic1/0
+
+producer需要server接收到数据之后发出的确认接收的信号，此项配置就是指procuder需要多少个这样的确认信号。此配置实际上代表了数据备份的可用性。以下设置为常用选项：
+（1）acks=0： 设置为0表示producer不需要等待任何确认收到的信息。副本将立即加到socket  buffer并认为已经发送。没有任何保障可以保证此种情况下server已经成功接收数据，同时重试配置不会发生作用（因为客户端不知道是否失败）回馈的offset会总是设置为-1；
+（2）acks=1： 这意味着至少要等待leader已经成功将数据写入本地log，但是并没有等待所有follower是否成功写入。这种情况下，如果follower没有成功备份数据，而此时leader又挂掉，则消息会丢失。
+（3）acks=all： 这意味着leader需要等待所有备份都成功写入日志，这种策略会保证只要有一个备份存活就不会丢失数据。这是最强的保证。
+（4）其他的设置，例如acks=2也是可以的，这将需要给定的acks数量，但是这种策略一般很少用。
+
+
+
+第一种高度抽象的Consumer API，它使用起来简单、方便，但是对于某些特殊的需求我们可能要用到第二种更底层的API，那么先介绍下第二种API能够帮助我们做哪些事情
+一个消息读取多次
+在一个处理过程中只消费Partition其中的一部分消息
+添加事务管理机制以保证消息被处理且仅被处理一次
+使用SimpleConsumer有哪些弊端呢？
+
+必须在程序中跟踪offset值
+必须找出指定Topic Partition中的lead broker
+必须处理broker的变动
+使用SimpleConsumer的步骤
+
+从所有活跃的broker中找出哪个是指定Topic Partition中的leader broker
+找出指定Topic Partition中的所有备份broker
+构造请求
+发送请求查询数据
+处理leader broker变更
+
+kafka监控工具（jdk8）
+https://github.com/Morningstar/kafka-offset-monitor
+
+kafka默认序列号是avro
+http://blog.csdn.net/a822631129/article/details/50418502
+
+
+
+java -Djava.security.auth.login.config=conf/server-client-jaas.conf \
+	-cp KafkaOffsetMonitor-assembly-0.4.1-SNAPSHOT.jar \
+       com.quantifind.kafka.offsetapp.OffsetGetterWeb \
+     --offsetStorage kafka \
+     --kafkaBrokers 10.117.180.197:9092,10.117.180.197:9093 \
+     --kafkaSecurityProtocol SASL_PLAINTEXT \
+     --zk 10.168.55.122:2181,10.251.236.216:2181,10.117.180.197:2181 \
+     --port 8091 \
+     --refresh 10.seconds \
+     --retain 2.days \
+     --dbName offsetapp_kafka
+     
+     
+------------------------confluent方式安装     
+wget http://packages.confluent.io/archive/3.0/confluent-3.0.0-2.11.zip
+unzip confluent-3.0.0-2.11.zip
+cd confluent-3.0.0
+nohup /mnt/confluent-3.0.0/bin/kafka-server-start /mnt/confluent-3.0.0/etc/kafka/server2.properties &>/dev/null &
+nohup /mnt/confluent-3.0.0/bin/schema-registry-start /mnt/confluent-3.0.0/etc/schema-registry/schema-registry.properties &>/dev/null &
+
+
+./bin/connect-standalone ./etc/schema-registry/connect-avro-standalone.properties ./etc/kafka/connect-file-source.properties
+
+
+--zk端口调整成2281
+./bin/zookeeper-server-start ./etc/kafka/zookeeper.properties
+
+启动kafka-------------添加host.name = ip or domain
+./bin/kafka-server-start ./etc/kafka/server.properties &>/dev/null &
+
+--启动schema-------------添加host.name = ip or domain
+./bin/schema-registry-start ./etc/schema-registry/schema-registry.properties
+
+--avro生产者，定义avro.schema的格式
+./bin/kafka-avro-console-producer --broker-list localhost:9092 --topic test --property value.schema='{"type":"record","name":"myrecord","fiel
+":[{"name":"f1","type":"string"}]}'
+发送：
+{"f1":"value1"}
+
+
+--消费端
+./bin/kafka-avro-console-consumer --topic test --zookeeper localhost:2281 --from-beginning
+
+
+-----------------------------------------------------------启动读取本地文件形式入kafka
+http://docs.confluent.io/current/connect/quickstart.html
+
+echo -e "log line 1\nlog line 2" > test.txt
+./bin/connect-standalone ./etc/schema-registry/connect-avro-standalone.properties ./etc/kafka/connect-file-source.properties
+
+--消费端
+./bin/kafka-avro-console-consumer --zookeeper localhost:2281 --topic connect-test --from-beginning
+
+--
+./bin/connect-standalone ./etc/schema-registry/connect-avro-standalone.properties ./etc/kafka/connect-file-source.properties ./etc/kafka/
+connect-console-sink.properties
+
+echo -e "log line 3\nlog line 4" >> test.txt
+
+
+
+---------------------------------------------------kafka stream   
+参考：
+https://www.confluent.io/download-center/
+http://kafka.apache.org/0110/documentation/streams/quickstart
+http://docs.confluent.io/3.0.0/streams/quickstart.html
+node产生消息java消费
+https://github.com/lucasjellema/kafka-streams-getting-started
+pom和仓库
+http://docs.confluent.io/current/installation.html#installation
+
+
+./bin/zookeeper-server-start ./etc/kafka/zookeeper.properties
+
+./bin/kafka-server-start ./etc/kafka/server.properties
+
+创建文件输入topic
+./bin/kafka-topics --create \
+          --zookeeper localhost:2281 \
+          --replication-factor 1 \
+          --partitions 1 \
+          --topic streams-file-input
+          
+创建文字统计topic          
+./bin/kafka-topics --create \
+          --zookeeper localhost:2281 \
+          --replication-factor 1 \
+          --partitions 1 \
+          --topic streams-wordcount-output          
+
+
+add data to kafka
+echo -e "all streams lead to kafka\nhello kafka streams\njoin kafka summit" > /tmp/file-input.txt
+cat /tmp/file-input.txt | ./bin/kafka-console-producer --broker-list localhost:9092 --topic streams-file-input
+
+执行单词统计程序---输入到topic：streams-wordcount-output  
+./bin/kafka-run-class org.apache.kafka.streams.examples.wordcount.WordCountDemo
+
+--查看统计结果
+./bin/kafka-console-consumer --zookeeper localhost:2281 \
+          --topic streams-wordcount-output \
+          --from-beginning \
+          --formatter kafka.tools.DefaultMessageFormatter \
+          --property print.key=true \
+          --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer \
+          --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+
+
+-----------------------------------------------------------kafka connect doc
+增加环境变量，把数据的jdbc jar加入环境变量
+KAFKA CONNECT 解析
+http://www.sohu.com/a/133788333_465944
+
+http://docs.confluent.io/3.2.2/connect/connect-jdbc/docs/source_connector.html#quickstart
+参数解释
+http://docs.confluent.io/3.2.2/connect/userguide.html#connect-userguide
+配置workers，在etc/schema-registry/connect-avro-*****目录下，序列化格式以及提交offset的频率等设置
+http://docs.confluent.io/3.2.2/connect/userguide.html#connect-configuring-workers
+mysql连接器，soure（源连接器）是从其他的导入到kafka，sink（Sink连接器）是从kafka导出
+https://www.confluent.io/product/connectors/
+sink_connector连接器
+http://docs.confluent.io/current/connect/connect-jdbc/docs/sink_connector.html
+source_connector源连接器
+http://docs.confluent.io/current/connect/connect-jdbc/docs/source_connector.html
+
+启动zk
+./bin/zookeeper-server-start ./etc/kafka/zookeeper.properties
+启动kafka
+./bin/kafka-server-start ./etc/kafka/server.properties
+启动avro
+./bin/schema-registry-start ./etc/schema-registry/schema-registry.properties
+
+启动连接器 第一个参数是workers，第二个是链接配置，
+./bin/connect-standalone ./etc/schema-registry/connect-avro-standalone.properties ./etc/kafka-connect-jdbc/source-quickstart-sqlite.properties
+集群模式多了些参数
+group.id、connect-configs、connect-offsets、connect-status
+分布式可以使用rest api来管理连接器
+
+
+查询数据
+./bin/kafka-avro-console-consumer --new-consumer --bootstrap-server localhost:9092 --topic mysql-accounts --from-beginning
+
+offset.storage.file.filename - 用于连接器偏移的存储，其以独立模式存储在本地文件系统上; 使用相同的文件将导致偏移数据被删除或覆盖不同的值
+rest.port - REST接口监听HTTP请求的端口----8083
+
+
+控制中心
+http://docs.confluent.io/3.0.0/control-center/docs/userguide.html#overview-of-the-app
+
+
+同步模式：
+CREATE TABLE accounts(id INTEGER PRIMARY KEY NOT NULL, NAME VARCHAR(255));
+ALTER TABLE `accounts` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT; 
+INSERT INTO accounts(NAME) VALUES('alice');
+INSERT INTO accounts(NAME) VALUES('bob');
+#稍后添加
+INSERT INTO accounts(NAME) VALUES('Dada');
+
+Incrementing Column：自动增长行，此模式适用于历史不会变的数据
+connection.url=jdbc:mysql://localhost:3306/kafka?user=123&password=123
+table.whitelist=accounts         #同步的表
+mode=incrementing
+incrementing.column.name=id
+-----------------------------------end
+
+Timestamp Column：时间戳，最后修改时间，如果两行共享一个时间戳，只会处理一个，另外一个将会忽略
+
+-------
+CREATE TABLE users(id INTEGER PRIMARY KEY NOT NULL, NAME VARCHAR(255),modified TIMESTAMP );
+
+ALTER TABLE `users` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT; 
+
+INSERT INTO users(NAME) VALUES('oooo');
+INSERT INTO users(NAME) VALUES('ddd');
+#稍后添加
+INSERT INTO users(NAME) VALUES('Dada');
+-----------------------------------end
+
+Timestamp and Incrementing Columns：自增行+时间戳
+Custom Query：自定义查询，自己在查询条件里管理偏移
+bulk：批量
+
+
+-------------------------------------------------------kafka connect elasticsearch
+启动zk
+./bin/zookeeper-server-start ./etc/kafka/zookeeper.properties
+启动kafka
+./bin/kafka-server-start ./etc/kafka/server.properties
+启动avro
+./bin/schema-registry-start ./etc/schema-registry/schema-registry.properties
+
+
+-----------------------------------------------------------------yelp架构---passtorm源来----mysqlstreamer源来
+适用于python语言
+http://architect.dataguru.cn/article-9961-1.html
+
+将MySQL表实时流式传输到Kafka
+https://engineeringblog.yelp.com/2016/08/streaming-mysql-tables-in-real-time-to-kafka.html
+
+
+./bin/kafka-avro-console-consumer --topic test \
+         --zookeeper localhost:2281 \
+         --from-beginning
+         
+./bin/kafka-avro-console-producer --broker-list localhost:9092 --topic test --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"f1","type":"string"}]}'
+
+
+
+
+
+
+---------------------
+nohup ./bin/kafka-server-start ./etc/kafka/server.properties &>/dev/null &
+
+启动schema开放的端口
+firewall-cmd --zone=public --add-port=8081/tcp --permanent
+nohup /mnt/confluent-3.2.2/bin/schema-registry-start /mnt/confluent-3.2.2/etc/schema-registry/schema-registry.properties &>/dev/null &
+
+通过控制台查看avro需要修改查看的端口
+vim bin/kafka-avro-console-consumerning
+
+
+
+---rest.port=8183   rest.host.name=ip
+nohup /mnt/confluent-3.2.2/bin/connect-standalone /mnt/confluent-3.2.2/etc/schema-registry/connect-avro-standalone.properties ./etc/kafka/connect-file-source.properties &>/dev/null &
+
+./bin/kafka-avro-console-consumer --topic nginx-visit --zookeeper localhost:2181 --from-beginning
+11616
+30346
+119418
+截至2017年7月27日 15:35:33，visitlog条数为：952146
+nohup /mnt/confluent-3.2.2/bin/connect-standalone /mnt/confluent-3.2.2/etc/schema-registry/connect-avro-standalone.properties ./nginx-properties/visit.log_2017-06-18.properties &>/dev/null &
+
+文件形式解析到kafak，从日志中可以看出，
+kafka序列号采用的是ByteArraySerializer：
+INFO ProducerConfig values
+key.serializer=org.apache.kafka.common.serialization.ByteArraySerializer
+value.serializer=org.apache.kafka.common.serialization.ByteArraySerializer
+文件读取的格式是空，可以调整成默认的
+INFO ConnectorConfig values
+key.converter = class org.apache.kafka.connect.json.JsonConverter
+追究源码org.apache.kafka.connect.storage.StringConverter.class
+发现两个没撒区别，converter里调用了serializer
+
+
+bin/kafka-console-consumer --topic visitlog --from-beginning --new-consumer --bootstrap-server 120.55.96.133:9092 --property print.key=true --property value.deserializer=org.apache.kafka.common.serialization.BytesDeserializer
+
+bin/kafka-console-consumer --topic visitlog --from-beginning --new-consumer --bootstrap-server 120.55.96.133:9092 --property print.key=true --property value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+./bin/kafka-console-consumer --topic visitlog3 --from-beginning --new-consumer --bootstrap-server 120.55.96.133:9092 --property print.key=true --property value.deserializer=org.apache.kafka.common.serialization.BytesDeserializer
+sed -i "s/tasks.max=1/tasks.max=5/g" `grep tasks.max=1 -rl ./*.properties`
+
+可以不用avro形式启动
+https://stackoverflow.com/questions/40192840/running-kafka-connect-with-avro-converter-configexception-missing-schema-reg
+
+通过kafka快速构建etl
+https://www.confluent.io/blog/how-to-build-a-scalable-etl-pipeline-with-kafka-connect/
+
+
+
+
+
+
+---------------------kstream ktable
+《Kafka Stream》调研：一种轻量级流计算模式
+https://yq.aliyun.com/articles/58382
+
+http://blog.csdn.net/ransom0512/article/details/52038548
+KStream：
+一个KStream是一个事件流，其中每条事件记录代表了无限的包含数据的数据集的抽象
+KTable：
+一个KTable是一个changlog更新日志流----例如数据库的：更新或者删除
+
+https://github.com/confluentinc/examples/tree/3.2.x/kafka-streams
+
+
+bin/kafka-console-consumer --topic visitlog --from-beginning --new-consumer --bootstrap-server 120.55.96.133:9092 --property print.key=true --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+
+
+
+如何为Kafka集群选择合适的Partitions数量
+http://blog.csdn.net/odailidong/article/details/52571901
+
+动态增加三个分区
+./kafka-topics --zookeeper 127.0.0.1:2181 --alter --topic nginx-visit --partitions 3
+
+查看topic分布情况
+./kafka-topics --zookeeper 127.0.0.1:2181  --topic nginx-visit --describe
+
+
+新增副本数
+http://www.cnblogs.com/honeybee/p/5691921.html
+
+新建rep.json  add:
+{
+    "version": 1, 
+    "partitions": [
+        {
+            "topic": "nginx-visit", 
+            "partition": 0, 
+            "replicas": [
+                102, 
+                1, 
+                2
+            ]
+        },
+        {
+            "topic": "nginx-visit", 
+            "partition": 1, 
+            "replicas": [
+                100, 
+                2, 
+                3
+            ]
+        },
+        {
+            "topic": "nginx-visit", 
+            "partition": 2, 
+            "replicas": [
+                101, 
+                2, 
+                4
+            ]
+        }
+    ]
+}
+
+执行新增备份动作
+kafka-reassign-partitions --zookeeper 127.0.0.1:2181  --reassignment-json-file rep.json --execute
+kafka-reassign-partitions --zookeeper 127.0.0.1:2181  --reassignment-json-file rep.json --verify
+正在执行：
+Reassignment of partition [nginx-visit,0] is still in progress
+
+
+KAFKA group总结，group只针对高可用消费api，一个组只消费一次消息
+http://blog.csdn.net/donggua6/article/details/43027953
+
+
+
+./kafka-topics --zookeeper 127.0.0.1:2181 --create --topic uatvisitlog --partitions 3  --replication-factor 3
+./kafka-topics --describe --zookeeper 127.0.0.1:2181 --topic uatvisitlog
+./kafka-topics --zookeeper 127.0.0.1:2181 --list
+./kafka-console-consumer --zookeeper 127.0.0.1:2181 --topic uatvisitlog --from-beginning
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.JoinTopicTridentTopo
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogTridentTopo
+
+960797:2017-07-27
+826560:2017-08-30
+分区0，1，2
+594873+596697+595789=1787357
+610335
+612159
+611251
+
+./kafka-topics --zookeeper 127.0.0.1:2181 --delete --topic uat-visit-log 
+./kafka-run-class kafka.tools.GetOffsetShell --topic uatvisitlog --time -1 --broker-list 10.168.55.122:9092 --partitions 0
+nohup /mnt/logstash-2.4.0/bin/logstash agent -f /mnt/logstash-2.4.0/conf/shipper_sk.conf &>/dev/null &
+
+
+----UV---numberWork===1
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogUVTrident
+
+
+-----pv=====numberWord=2
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogAVCTopo
+
+-----stayTime=====numberWord=1
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogStayTopo
+
+-----search keyword=====numberWord=1
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogSKeyTopo
+
+
+-----entry page=====numberWord=1
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogEntryPageTopo
+
+-----area uv=====numberWord=1
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogAreaTopo
+
+
+-----page puv=====numberWord=1
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogPageTopo
+
+
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogSMSTopo
