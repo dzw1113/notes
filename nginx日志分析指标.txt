@@ -1,0 +1,51 @@
+按天：
+总访客:UV-----一个用户算作一次
+总浏览量：PV------一条记录作一次
+
+表结构：
+日期(天)、用户uid、访问数
+
+
+按每天每小时（实时访客趋势）:
+表结构：
+日期(天)、小时数、用户uid、访问数
+
+
+人均访问时长：
+参考：
+https://www.douban.com/note/495377749/?type=like
+uid   time  date
+a     8:11    10月1
+a     8:13    10月1
+a     8:14    10月1
+a     12:50    10月1
+a     14:30    10月1
+1/用户一次访问中只访问了一个页面而该页面的关闭时间未收到，则系统赋予该页面一定定值作为访问时长;
+2/用户一次访问中涉及到n(n≥2)个页面，其中第n个页面的关闭时间无法收到，则系统将前 (n-1)个页面的平均访问时长作为第n个页面的访问时长;
+
+固定值：
+1、15秒
+参考：
+http://yingxiao.baidu.com/support/topic/53/?hmsr=www2small&hmmd=&hmpl=&hmkw=&hmci=
+https://jeffshow.com/how-ga-count-sessions.html
+结：
+a用户当天访问了三次，平均时长为:
+(120秒+60秒+15秒+15秒+15秒)/3=75秒
+采用sql分析函数如下：
+SELECT it.vd_day,
+       it.vd_uid,   
+       it.vs_time,    
+       CASE WHEN (CASE  
+          WHEN @preVal = it.vd_uid THEN @rsVal := TIME_TO_SEC(TIMEDIFF(@curVal,it.vs_time)) /60
+          WHEN @preVal := it.vd_uid THEN @curVal := it.vs_time  
+       END)=it.vs_time THEN 15 /60 
+       ELSE 
+       (CASE  
+          WHEN @preVal = it.vd_uid THEN @rsVal := TIME_TO_SEC(TIMEDIFF(@curVal,it.vs_time)) /60
+          WHEN @preVal := it.vd_uid THEN @curVal := it.vs_time  
+       END)
+       END       
+       AS sum_income  
+FROM trans_visit_stay_time it, (SELECT @preVal:=NULL, @curVal:=NULL,@rsVal:=NULL) r  
+ORDER BY it.vd_day ASC,it.vd_uid ASC, it.vs_time DESC;
+  
