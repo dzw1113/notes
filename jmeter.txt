@@ -1,0 +1,107 @@
+下载地址：
+http://jmeter.apache.org/
+
+badboy弥补了jmeter的录制功能不足，可导出为jmeter脚本
+badboy下载地址：
+http://www.badboy.com.au/download/send?svId=127
+
+
+
+参考：
+http://blog.csdn.net/erix1991/article/details/20036213
+jmeter工作原理：
+性能脚本/浏览器----->jmeter----->服务器
+
+
+
+http://blog.csdn.net/qq514418695/article/details/53183473
+【jmeter测试--自带录制脚本功能】
+测试计划--->线程组--->录制控制器
+工作台--->HTTP代理服务器--->查看结果树---->聚合报告
+在结果树里可以看到很多的http请求
+
+
+压力测试则是把这些请求通过线程组设置不停地请求，可以查看聚合报告。
+线程组参数：
+线程数：虚拟用户数
+ramp up period：设置的虚拟用户数需要多长时间全部启动，如果线程为20,时间为10，也就是每每秒启动两个线程
+循环次数：每个线程发送请求的次数，如果线程为20，循环100次，那么每个线程发送100次请求，总请求数为20*100=2000次，如果永久则一次请求
+调度器:可以更灵活的设置运行时间等
+
+
+Jmeter 测试结果分析之聚合报告简介，单位是毫秒
+http://www.cnblogs.com/Uther/p/5292123.html
+	
+------------------------元件-------------------
+JMeter基础之--元件的作用域与执行顺序
+http://www.cnblogs.com/fnng/archive/2012/12/27/2836506.html	
+1/配置元件（config elements ）：元件会影响其作用范围内的所有元件。
+2/前置处理程序（Per-processors）:元件在其作用范围内的每一个sampler元件之前执行。
+3/定时器（timers ）:元件对其作用范围内的每一个sampler 有效
+4/sampler:具体执行的
+5/后置处理程序（Post-processors）:元件在其作用范围内的每一个sampler元件之后执行。
+6/断言（Assertions）:元件对其作用范围内的每一个sampler 元件执行后的结果执行校验。
+7/监听器（Listeners）:元件收集其作用范围的每一个sampler元件的信息并呈现。
+以上就是执行顺序
+
+
+---------------------参数化-------------
+Jmeter（七）-参数化
+http://www.cnblogs.com/zhuque/archive/2012/11/20/2779253.html
+用户参数：
+1、在前置处理里添加用户参数
+2、cvsdat以文本形式，再引用进来
+3、函数助手框
+做完以上，需要在具体的请求参数里替换变量值${变量}
+
+
+
+
+-----------集合点------
+jmeter-集合点(并发)---学习笔记
+http://blog.csdn.net/zjq001x/article/details/53107159
+Jmeter运营活动并发测试——巧用集合点
+http://www.jianshu.com/p/088616023ecd?winzoom=1
+集合点=timer：
+Number of Simulated Users to Group by:集合多少人后再执行请求（也就是执行的线程数）
+注意：等同于设置为线程租中的线程数，一定要确保设置的值不大于它所在线程组包含的用户数。
+Timeout in milliseconds：指定人数 多少秒没集合到算超时（设置延迟时间以毫秒为单位）
+注意：如果设置Timeout in milliseconds为0，表示无超时时间，会一直等下去。
+线程数量无法达到"Number of Simultaneous Users to Group by"中设置的值，那么Test将无限等待，除非手动终止。
+
+查看集合点可以发送时间看
+在sampler前后加入集合点，设置集合点和线程数一样，设置启动时间为1秒，循环一次，集合点超市为0，再去查看结果树，五次请求都是同一时间！
+
+
+
+--------------------检查点---断言-------
+断言：
+在sampler里添加响应断言和断言结果，断言结果和预期的一样则显示一行，错误的话，会出现两行
+断言持续时间---响应时间不超过多少毫秒，如果超出了时间认定为失败断言，提示如下
+HTTP请求0
+	断言持续时间 : 操作持续太长时间：他花费了44毫秒，但不应该超过1毫秒。
+	
+size断言-------返回超过多少字节则认定失败
+HTTP请求0
+	返回大小断言 : The result was the wrong size: It was 552 bytes, but should have been equal to 1 bytes.
+	
+	
+WebTours服务的启动	
+http://www.cnblogs.com/rachel-pzl/p/6287812.html	
+-----loadrunner自带了一个web tours系统---（飞机系统订票网站）		
+
+
+
+
+jmeter插件
+http://blog.csdn.net/shuimengzhen/article/details/61918166
+https://jmeter-plugins.org/downloads/all/
+下载jar后放在lib/ext目录，重启jmeter后会在option里多一个plugin manager
+
+在打开的Jmeter Plugins Manager窗体单击Available Plugins 选项，在左边的区域内会显示插件（注：已安装插件，此处显示空白），
+勾选中需要安装的插件，单击窗体底部按钮【Apply Changes and Restart JMeter】 
+
+
+soap组件
+https://github.com/tilln/jmeter-wssecurity/releases
+https://github.com/spinning10/JMeterSoapSampler/wiki
