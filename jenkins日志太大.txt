@@ -1,0 +1,7 @@
+Manage Jenkins -> System Log -> Log Levels (on the left)
+Name: javax.jmdns
+Level: off
+
+
+²Î¿¼£º
+https://stackoverflow.com/questions/31719756/how-to-stop-jenkins-log-from-becoming-huge
