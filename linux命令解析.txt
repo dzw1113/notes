@@ -100,3 +100,14 @@ tcpdump tcp port 23 and host 210.27.48.1
 
 Linux tcpdump命令详解
 http://www.cnblogs.com/ggjucheng/archive/2012/01/14/2322659.html
+
+
+批量替换文件里的内容
+sed -i "s/tasks.max=1/tasks.max=5/g" `grep tasks.max=1 -rl ./*.properties`
+
+
+http://blog.csdn.net/tstana/article/details/70229500
+查看占内存大的8个进程
+ps -aux | sort -k4nr | head -8
+
+top （然后按下M，注意大写）

@@ -34,3 +34,13 @@ firewall-cmd --permanent --zone=public --add-port=3180/tcp
 
 ²Î¿¼£º
 http://blog.csdn.net/huangjin0507/article/details/51645061
+
+ZK¿Í»§¶Ë	
+https://github.com/DeemOpen/zkui
+https://github.com/DeemOpen/zkui.git
+1/mvn clean install
+2/Copy the config.cfg to the folder with the jar file. Modify it to point to the zookeeper instance. Multiple zk instances are coma separated. eg: server1:2181,server2:2181. First server should always be the leader.
+3/Run the jar. ( nohup java -jar zkui-2.0-SNAPSHOT-jar-with-dependencies.jar & )
+4/http://localhost:9090
+
+username: admin, pwd: manager

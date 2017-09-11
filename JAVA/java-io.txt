@@ -58,3 +58,9 @@ http://blog.csdn.net/wangloveall/article/details/7992448/
 
 Java输入输出流
 http://blog.csdn.net/hguisu/article/details/7418161
+
+Apache Avro RPC 实例
+http://blog.csdn.net/zhu_tianwei/article/details/44042955
+
+Avro与java
+http://shift-alt-ctrl.iteye.com/blog/2217425

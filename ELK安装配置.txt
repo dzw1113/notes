@@ -1,0 +1,221 @@
+下载logstash（2.3.3），elastaicsearch（2.3.3），kibana（4.5.1）
+官方地址：
+https://www.elastic.co/downloads/past-releases
+https://download.elastic.co/logstash/logstash/logstash-all-plugins-2.3.3.zip
+https://download.elastic.co/logstash/logstash/logstash-2.3.3.zip
+https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/elasticsearch-2.3.3.zip
+https://download.elastic.co/kibana/kibana/kibana-4.5.1-linux-x64.tar.gz
+----------------------------------------------------------------
+
+------------------------------logstash---------------start
+cd /mnt
+unzip -o logstash-2.3.3.zip
+
+mkdir -p /mnt/logstash-2.3.3/conf
+mkdir -p /mnt/logstash-2.3.3/conf/pattern
+
+cd /mnt/logstash-2.3.3/conf/pattern
+tar  -xvf patterns.tar
+
+Shipper：日志收集者。负责监控本地日志文件的变化，及时把日志文件的最新内容收集起来，输出到Redis暂存。
+Indexer：日志存储者。负责从Redis接收日志，写入到本地文件
+Broker：日志Hub，用来连接多个Shipper和多个Indexer。-----redis
+配置indexer.conf和shipper.conf文件
+
+
+
+启动：
+nohup /mnt/logstash-2.3.3/bin/logstash agent -f shipper.conf &>/dev/null &
+
+nohup /mnt/logstash-2.3.3/bin/logstash agent -f indexer.conf &>/dev/null &
+
+logstash查看帮助，对应的指令普遍在lib的pluginmanager里
+./logstash-plugin --help
+查看插件
+./logstash-plugin list
+
+更新kafka插件
+先修改主目录下的GemFile
+改source为淘宝
+再改版本<3.0.0为5.1.7
+最后执行更新
+./logstash-plugin update logstash-input-kafka
+
+https://www.elastic.co/guide/en/logstash/2.4/plugins-outputs-kafka.html
+input标签内：
+file {
+    path => "/mnt/nginx/kmall/*"
+    type => "nginx-visit-log"
+    sincedb_path => "/mnt/logstash-2.4.0/sincedb_path/logpostion"
+    codec => "plain"
+  }
+
+output为，只需要message：
+if [type] == "nginx-visit-log"{
+    kafka {
+      workers => 8
+      bootstrap_servers => "10.117.180.197:9092,10.168.55.122:9092,10.251.236.216:9092"
+      topic_id => "uat-visit3"
+      codec => plain {
+           format => "%{message}"
+      }
+    }
+  }
+
+
+
+参考：
+http://blog.csdn.net/u010246789/article/details/52086799
+
+https://www.elastic.co/guide/en/logstash/2.3/input-plugins.html
+https://www.elastic.co/guide/en/logstash/2.3/plugins-inputs-file.html
+
+http://blog.csdn.net/zhaoyangjian724/article/details/52280988
+
+http://www.jianshu.com/p/6575041b597d
+
+http://www.cnblogs.com/xing901022/p/4864690.html
+
+https://github.com/elastic/logstash/tree/2.3
+
+写程序很难之logstash之file input插件实现分析
+http://blog.csdn.net/hengyunabc/article/details/25665877
+
+让Logstash每次都从头读文件
+http://blog.csdn.net/jiao_fuyou/article/details/50777816
+
+sincedb_path => "/mnt/logstash-2.3.3/sincedb_path/logpostion"
+sincedb_path => "/dev/null"
+以上然并卵，重新复制文件才行
+1、批量修改为当前系统时间
+touch `find ./* -name '*'`
+logpostion记录了四个值
+inode、主设备号、次设备号以及读取的位置
+通过state查看inode信息
+stat 2017_05_05.stderrout.log
+把文件的最后一个参数同修改成0，就会重头读起---有效
+
+logstash版本与kafka版本
+https://www.elastic.co/guide/en/logstash/2.3/plugins-outputs-kafka.html
+------------------------------elastaicsearch---------------start
+https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.4.0/elasticsearch-2.4.0.zip
+cd /mnt
+unzip -o elasticsearch-2.3.3.zip
+
+修改配置文件
+vim /mnt/elasticsearch-2.3.3/config/elasticsearch.yml
+# 也是指定了集群名称
+cluster.name: elasticsearch
+#指定了节点名称
+node.name: elasticsearch-node-1
+#指定了该节点可能成为 master 节点，还可以是数据节点
+node.master: true
+node.data: true
+#指定节点IP地址---必须是内网，当前版本有bug
+network.host: 192.168.38.131
+#指定http端口，你使用head、kopf等相关插件使用的端口
+http.port: 9200
+#为节点之间的通信设置一个自定义端口(默认为9300)    
+transport.tcp.port: 9300
+
+#这个是客户端访问地址
+http.publish_host：域名
+
+
+vim /mnt/elasticsearch-2.3.3/bin/elasticsearch
+# -------------add 2016-11-02 dzw
+ES_JAVA_OPTS="-Des.insecure.allow.root=true"
+
+--------------------需通过nginx作域名解析访问-----
+
+安装head插件
+/mnt/elasticsearch-2.3.3/bin/plugin install mobz/elasticsearch-head
+http://localhost:9200/_plugin/head/
+
+安装中文分词插件
+git clone https://github.com/medcl/elasticsearch-analysis-ik.git
+git branch -r
+切换到相应的版本
+
+
+安装es-sql
+./bin/plugin install https://github.com/NLPchina/elasticsearch-sql/releases/download/2.3.3.0/elasticsearch-sql-2.3.3.0.zip 
+离线安装的话，在plugin里创建sql文件夹，解压zip包，把zip包移动到sql下
+
+jdbc-support支持，在/mnt/elasticsearch-2.3.3/plugins/sql目录拷贝三个包到项目里也可以从git克隆
+git clone https://github.com/allwefantasy/elasticsearch-sql.git
+切换到分支jdbc-support
+修改pom里的elastaicsearch版本
+执行mvn package -Dmaven.test.skip=true
+
+绑定域名下访问
+curl 'domain/_cat/indices?v'
+curl http://domain/_cat/health?v
+-------------------------需通过nginx作域名解析访问-----
+
+
+查看帮助
+./elasticsearch --help
+
+后台启动
+./elasticsearch -d
+
+查看插件帮助
+./plugin --help
+
+查看所以插件
+./plugin list
+
+
+
+警告：如果开启了nginx域名解析，需要
+
+
+获取索引
+curl 'localhost:9200/_cat/indices?v'
+
+
+
+查看集群状态
+curl http://localhost:9200/_cat/health?v
+
+删除索引 DELETE
+curl -XDELETE 'localhost:9200/customer?pretty'
+
+参考：
+ElasticSearch Root身份运行
+http://blog.csdn.net/u010317005/article/details/52205825
+
+http://blog.csdn.net/lx553798608/article/details/51728541
+
+https://github.com/medcl/elasticsearch-analysis-ik
+
+elasticsearch常用命令
+http://www.cnblogs.com/lishouguang/p/4560930.html
+
+ElasticSearch的工作机制
+http://www.tuicool.com/articles/mq6J7v
+
+elasticsearch zen discovery（选主机制）
+http://blog.csdn.net/yxsimple/article/details/50710524
+
+Elasticsearch 架构以及源码浅析
+http://www.tuicool.com/articles/ruQBB3E
+
+http://www.cnblogs.com/zlslch/p/6419948.html
+
+elasticsearch相关配置
+https://my.oschina.net/kittyMan/blog/387512?p=1
+
+https://github.com/NLPchina/elasticsearch-site
+
+essql文档
+https://github.com/NLPchina/elasticsearch-sql/wiki
+------------------------------kibana---------------start
+
+nohup /mnt/kibana-4.5.1-linux-x64/bin/kibana &>/dev/null &
+kibama账号密码：
+
+kibanaAdmin kidmadeto2016
+
+
