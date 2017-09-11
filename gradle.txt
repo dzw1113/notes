@@ -1,0 +1,41 @@
+下载：
+http://www.gradle.org/downloads
+配置环境变量
+https://gradle.org/install/
+校验：
+gradle -v
+
+适合人群
+适用于自动化地进行软件构建、测试、发布、部署、软件打包的项目。
+学习前提
+你需要有 Groovy 语言基础，对 Java 应用开发有一定的了解
+
+我们能够使用以下配置文件对Gradle的构建进行配置：
+
+Gradle构建脚本（build.gradle）指定了一个项目和它的任务。
+Gradle属性文件（gradle.properties）用来配置构建属性。
+Gradle设置文件（gradle.settings）对于只有一个项目的构建而言是可选的，
+如果我们的构建中包含多于一个项目，那么它就是必须的，因为它描述了哪一个项目参与构建。每一个多项目的构建都必须在项目结构的根目录中加入一个设置文件。
+
+helloWorld---->Groovy----->延迟依赖----->动态任务----->任务之间的通信----->增加任务行为
+------>以属性的方式访问任务---->增加自定义属性--->利用方法组织脚本逻辑--->定义默认任务
+
+
+获取依赖列表:gradle dependencies
+buildScript:buildScript块主要是为了Gradle脚本自身的执行，获取脚本依赖插件
+allprojects:allprojects块的repositories用于多项目构建，为所有项目提供共同所需依赖包。而子项目可以配置自己的repositories以获取自己独需的依赖包。
+
+参考：
+https://www.w3cschool.cn/gradle/
+
+gradle插件
+https://docs.gradle.org/current/userguide/standard_plugins.html
+
+Gradle 构建基础
+https://www.w3cschool.cn/gradle/ms7n1hu2.html
+
+理解根目录下的build.gradle
+http://www.jianshu.com/p/c9ec9e2a506e
+
+Gradle提供了一种名为 extra property 的方法
+http://blog.csdn.net/xu_song/article/details/52050092
