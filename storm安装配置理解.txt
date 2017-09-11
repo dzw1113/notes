@@ -1,0 +1,488 @@
+安装：------
+下载RPM
+https://github.com/alibaba/jstorm/wiki/Downloads
+wget https://github.com/alibaba/jstorm/releases/download/2.1.1/taobao-jstorm-2.1.1-b515985.noarch.rpm
+#----安装目录cd /home/admin/jstorm/
+rmp -ivh taobao-jstorm-2.1.1-b515985.noarch.rpm
+#可能会包个错---安装桥接
+modmodprobe bridge
+
+参考：
+https://github.com/alibaba/jstorm/wiki/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85
+
+cd /home/admin/jstorm/
+wget http://mirror.bit.edu.cn/apache/tomcat/tomcat-7/v7.0.79/bin/apache-tomcat-7.0.79.tar.gz
+tar -xvzf apache-tomcat-7.0.79.tar.gz
+cd apache-tomcat-7.0.79
+放war包
+启动解压
+设置软链接
+
+./jstorm nimbus >/dev/null 2>&1 &
+./jstorm supervisor >/dev/null 2>&1 &
+
+./jstorm jar kid.das-0.0.1-SNAPSHOT-jar-with-dependencies.jar kid.kafka.jstorm.topo.trident.NginxLogTridentTopo
+在nimbus 节点上执行 “nohup jstorm nimbus &”, 查看$JSTORM_HOME/logs/nimbus.log检查有无错误
+在supervisor节点上执行 “nohup jstorm supervisor &”, 查看$JSTORM_HOME/logs/supervisor.log检查有无错误
+
+
+安装文档
+https://github.com/alibaba/jstorm/wiki
+storm大的概念
+https://github.com/alibaba/jstorm/wiki/JStorm%E6%9E%B6%E6%9E%84
+http://blog.csdn.net/victory0508/article/details/44808149
+https://github.com/alibaba/jstorm/wiki/%E6%A6%82%E5%8F%99-&-%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF
+storm基础概念
+https://github.com/alibaba/jstorm/wiki/JStorm-basics-in-5-min
+https://github.com/alibaba/jstorm/wiki/%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5
+阿里对jstorm的应用----双11直播间也是
+https://wenku.baidu.com/view/59e81017dd36a32d7375818b.html
+资源硬隔离------没太懂
+https://github.com/alibaba/jstorm/wiki/%E8%B5%84%E6%BA%90%E7%A1%AC%E9%9A%94%E7%A6%BB
+
+trident翻译
+http://blog.csdn.net/derekjiang/article/details/9126185
+
+单Web-UI-管理多集群
+https://github.com/alibaba/jstorm/wiki/%E5%8D%95Web-UI-%E7%AE%A1%E7%90%86%E5%A4%9A%E9%9B%86%E7%BE%A4
+
+
+参考：
+jstorm本地开发环境搭建
+http://blog.csdn.net/jamal117/article/details/54645854
+http://blog.csdn.net/tengdazhang770960436/article/details/18006081
+https://www.slf4j.org/codes.html#multiple_bindings
+
+
+升级说明
+https://github.com/alibaba/jstorm/wiki/Migration-Guide-From-JStorm0.9.x-To-2.x
+
+本地调试环境配置需要在pom调整以下
+
+jstorm-core排除以下
+<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-nop</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
+			
+在dependency最前面加，两个版本要一致，我的是1.7.12
+<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>		
+		
+同时加入：
+<dependency>
+			<groupId>com.twitter</groupId>
+			<artifactId>chill-java</artifactId>
+			<version>0.8.1</version>
+		</dependency>		
+		
+
+------------------2.1.1升级到2.2.1------------------------		
+因为2.1.1的trident有问题需要升级到2.2.1
+下载源码到本地
+mvn clean
+mvn package assembly:assembly -Dmaven.test.skip=true
+把target的war包和jar放到服务器
+			
+			
+
+------源码阅读
+
+------------------Spout------------------------START
+ifve的storm-spout
+http://ifeve.com/getting-started-with-storm-4/
+http://blog.csdn.net/wdasdaw/article/details/48896321
+
+kafkaSpout解读
+http://blog.csdn.net/FengYeDeYanLei/article/details/52485165?locationNum=1
+
+Spout要么继承BaseRichSpout要么实现IRichSpout和IComponent接口
+
+当一个Supervisor初始化该Spout组件时调用，提供Spout运行所必需的环境:
+open(Map conf, final TopologyContext context, final SpoutOutputCollector collector)
+conf：水龙头配置
+context： 这个配置被用来获取该Spout任务的信息，包括任务id，组件id，输入输出信息等等
+collector:用来从这个Spout里发送元组，元组可以在任何时间里发送，包括open和close函数里。collector是线程安全的，应该被作为一个实例对象保存到Spout对象里
+
+定义topology里的Stream的schema
+declareOutputFields(OutputFieldsDeclarer declarer)
+declarer - 定义输出stream的ids，输出的字段，输出stream是不是直接stream（direct stream）
+
+以msgId消息告诉Storm这个Spout已经成功输出了该元组
+void ack(Object msgId)
+
+激活Spout，Spout从deactivate模式转化为activate模式，Spout开始调用nextTuple输出数据。
+void activate() {
+
+关闭Spout
+void close() {
+
+解除激活Spout，Spout从activate模式转化为deactivate模式，Spout停止调用nextTuple输出数据
+void deactivate() {
+
+fail(Object msgId) {
+以msgId消息告诉Storm这个Spout输出该元组失败，主要用于将该元组重新放回消息队列，以在一段时间后重发该元组
+
+void nextTuple() {
+调用该函数请求Storm发送元组到Output Collector，这个函数不应该是阻塞的，当没有元组发送时，一般调用sleep，以充分利用CPU
+
+输出器可以标记信息成功或失败或者重发			
+SpoutOutputCollector====Spout输出器			
+OutputCollector====Bolt输出器
+
+
+------------------Spout------------------------END
+
+
+------------------Bolt------------------------start
+storm完整性
+http://liyonghui160com.iteye.com/blog/2070320
+
+和Spout的open函数的作用类似，在Bolt组件初始化的时候调用，提供Bolt所必需的环境
+void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
+
+void execute(Tuple input) {
+处理单个输入的元组，元组对象包含了从组件/流/任务得来的元数据。
+元组的值通过Tuple#getValue访问，Bolt并不需要马上处理元组，可以先将数据保存在合适的时间处理。
+Bolt使用在prepare函数中得到的OutputCollector对象输出元组，
+必须在这个函数里面确保使用OutputCollector#ack或者OutputCollector#fail告知Storm已经处理成功或者处理失败，否则Storm将无法确定Spout里元组是否已经被处理完成。
+
+void cleanup() {
+当Bolt要关闭的时候调用，但是不能保证该函数一定可以被调用，当使用kill -9命令杀死工作进程时该函数就无法调用，一般用于local mode下清理使用
+
+
+
+
+https://github.com/alibaba/jstorm/wiki/IBasicBolt-vs-IRichBolt
+IRichBolt继承自IBolt，IBolt会使用OutputCollector来发送元组
+public interface IBolt extends Serializable {
+...
+  void prepare(Map stormConf, TopologyContext context, OutputCollector collector);
+...
+}
+OutputCollector有两个用于发送元组的函数
+//后续component会向acker发送ack响应。
+List<Integer> emit(String streamId, Tuple anchor, List<Object> tuple)
+//后续component不会向acker发送ack响应。
+List<Integer> emit(String streamId, List<Object> tuple) {
+
+
+
+
+IBasicBolt使用BasicOutputCollector来发送元组
+public interface IBasicBolt extends IComponent {
+...
+void execute(Tuple input, BasicOutputCollector collector);
+...
+}
+BasicOutputCollector封装了OutputCollector
+BasicOutputCollector只有第二个emit函数。但是这个函数包裹了OutputCollector第一个emit函数来完成工作。
+//out是一个OutputCollector实例.
+List<Integer> emit(String streamId, List<Object> tuple) {
+        return out.emit(streamId, inputTuple, tuple);
+    }
+    
+因此，在IBasicBolt中，emit(String streamId, List<Object> tuple)是用于处理元组的可靠方法。但是，在IRichBolt中，它不是一个可靠的方法。
+在使用IRichBolt是，如果你想可靠的处理元组，你应该显式地调用emit(String streamId, Tuple anchor, List<Object> tuple)     
+
+
+------------------Bolt------------------------END
+
+------------------Topology------------------------START
+http://blog.csdn.net/xeseo/article/details/18219183
+
+------------------Topology------------------------END
+
+其中Scheme就是告诉KafkaSpout如何去解码数据，生成Storm内部传递数据
+storm-kafka源码走读之自定义Scheme
+http://blog.csdn.net/wzhg0508/article/details/40874155
+
+
+KafkaUtils：offset管理，message获取都在该utils里
+
+
+----jstorm命令行在此目录
+backtype.storm.command
+
+/mnt/confluent-3.2.2/etc/schema-registry/connect-avro-standalone.properties ./visit.properties
+
+
+
+/**
+	 * 构建一个topo步骤
+	 * 1/远程or本地
+	 * 2/源从kafka
+	 * 3/定义spout(consumer)参数，如下：
+	 *    采用trident批量/采用常规的spout:是否从头读起，获取zk配置、设置spout线程数
+	 * 4/定义bolt参数，如下：
+	 *    采用trident批量：
+	 *      待补充
+	 *    采用常规bolt:继承IRichBolt or IBasicBolt
+	 *      IRichBolt:需要在prepare里传入output，最后显式的调用ack or fail
+	 *      IBasicBolt:在调用execute的emit后自动调用ack（/jstorm-core/src/main/java/backtype/storm/topology/BasicBoltExecutor.java----50行）
+	 *    设置并行度
+	 *    是否需要重新写入kafka（需要的话需要配置producre----采用异步）
+	 * 5/构建topo
+	 *    本地/远程：关联常规是spout和bolt，设置topo图，trident则只需要流式写法
+	 * 6/提交topo   
+	 */
+	 
+	
+-------kafka-storm
+参考：http://blog.csdn.net/desilting/article/details/22798693
+KafkaOffsetMetric
+storm的IMetric用于监控应用指标
+
+/jstorm-core/src/main/java/backtype/storm/task/TopologyContext.java
+context.registerMetric("kafkaOffset", new IMetric() {
+
+kafka
+/kid.das/src/main/java/storm/kafka/KafkaUtils.java
+	 
+	
+	
+storm事务总结---精品	
+http://blog.csdn.net/wb81074/article/details/50263373	 
+
+
+
+storm工作流程计划：
+
+spout从kafka拉取nginx日志
+bolt流程：
+1、botl1： kafka解析字符串到storm，转换成对象，分发到多个bolt
+  分发以下数据：
+    1.1,
+    
+    1.1,从bolt1取出对象，
+    1.2,    
+    1.2,从bolt1取出对象，按每小时分组，计算出UV
+    1.3,从bolt1取出对象，按访问url和天分组，计算出浏览量
+    
+    
+------------------------------trident----------------------------start
+http://www.flyne.org/article/222
+只有一次被处理的目标:
+1、每次会发射一个batchid给下游，一个batchid里有很多tuple（一组tuple被称为一个batch）
+2、每一批tuples被给定一个唯一ID作为事务ID (txid). 当这一批tuple被重播时, txid不变
+3、批与批之间的状态更新时严格顺序的。比如说第三批tuple的状态的更新必须要等到第二批tuple的状态更新成功之后才可以进行
+
+
+-------事务spout（Transactional spouts）-----start
+Trident是以小批量（batch）的形式在处理tuple，并且每一批都会分配一个唯一的transaction id。不同spout的特性不同，一个transactional spout会有如下这些特性：
+1、有着同样txid的batch一定是一样的。当重播一个txid对应的batch时，一定会重播和之前对应txid的batch中同样的tuples。
+2、各个batch之间是没有交集的。每个tuple只能属于一个batch
+3、每一个tuple都属于一个batch，无一例外
+
+假如说你有一个用来计算单词出现次数的topology，你想要将单词的出现次数以key/value对的形式存储到数据库中。
+key就是单词，value就是这个这个单词出现的次数。你已经看到只是存储一个数量是不足以知道你是否已经处理过一个batch的。
+你可以通过将value和txid一起存储到数据库中。这样的话，当更新这个count之前，你可以先去比较数据库中存储的txid和现在要存储的txid。
+如果一样，就跳过什么都不做，因为这个value之前已经被处理过了。如果不一样，就执行存储。
+这个逻辑可以工作的前提就是txid永不改变，并且Trident保证状态的更新是在batch之间严格顺序进行的。
+-------事务spout（Transactional spouts）-----end
+
+
+-------不透明事务spout（Opaque transactional spouts）-----start
+增加了失败了重发tuple，如果分区挡掉了，可以通过其他的batch重发，
+OpaqueTridentKafkaSpout 是一个拥有这种特性的spout，并且它是容错的，即使Kafka的节点丢失。当OpaqueTridentKafkaSpout 发送一个batch的时候, 它会从上个batch成功结束发送的位置开始发送一个tuple序列。这就确保了永远没有任何一个tuple会被跳过或者被放在多个batch中被多次成功处理的情况.
+
+1、每个tuple只在一个batch中被成功处理。然而，一个tuple在一个batch中被处理失败后，有可能会在另外的一个batch中被成功处理。
+
+举例来说，TransactionalTridentKafkaSpout 工作的方式是一个batch包含的tuple来自某个kafka topic中的所有partition。
+一旦这个batch被发出，在任何时候如果这个batch被重新发出时，它必须包含原来所有的tuple以满足 transactional spout的语义。
+现在我们假定一个batch被TransactionalTridentKafkaSpout所发出，这个batch没有被成功处理，并且同时kafka的一个节点也down掉了。
+你就无法像之前一样重播一个完全一样的batch（因为kakfa的节点down掉，该topic的一部分partition可能会无法使用），整个处理会被中断。
+-------不透明事务spout（Opaque transactional spouts）-----end
+
+-------State APIs-----start
+Trident提供了一个QueryFunction接口用来实现Trident中在一个state source上查询的功能。
+同时还提供了一个StateUpdater来实现Trident中更新state source的功能。比如说，让我们写一个查询地址的操作，这个操作会查询LocationDB来找到用户的地址
+-------State APIs-----end
+
+
+
+-------persistentAggregate-----start
+persistentAggregate是在partitionPersist之上的另外一层抽象,它知道怎么去使用一个Trident 聚合器来更新State
+用来进行group的字段会以key的形式存在于State当中，聚合后的结果会以value的形式存储在State当中,MemoryMapState 和 MemcachedState 分别实现了上面的2个接口。
+-------persistentAggregate-----end
+
+
+
+-------Implementing Map States-----start
+在Trident中实现MapState是非常简单的，它几乎帮你做了所有的事情。OpaqueMap, TransactionalMap, 和 NonTransactionalMap 类实现了所有相关的逻辑，包括容错的逻辑。
+你只需要将一个IBackingMap 的实现提供给这些类就可以了
+
+参考：
+http://blog.csdn.net/jediael_lu/article/details/76794843#1创建一个实现ibackingmap的类实现multiget和multiput方法
+在这个例子当中，因为这是一个group好的stream，Trident会期待你提供的state是实现了MapState接口的，
+用来进行group的字段会以key的形式存在于State当中，聚合后的结果会以value的形式存储在State当中
+
+当你在一个未经过group的stream上面进行聚合的话，Trident会期待你的state实现Snapshottable接口
+-------Implementing Map States-----end
+
+
+--------------分区和本地操作（Partition-local operations）-------start
+partitionAggregate对每个partition执行一个function操作（实际上是聚合操作），先在自己的分区统计，统计完了再在全部的分区统计
+当使用aggregate()方法代替partitionAggregate()方法时，就能看到CombinerAggregation带来的好处。这种情况下，Trident会自动优化计算：先做局部聚合操作，然后再通过网络传输tuple进行全局聚合
+
+Aggregator--BaseAggregator:可以输出多个字段出来
+ReducerAggregator：使用init()方法产生一个初始值，对于每个输入tuple，依次迭代这个初始值，最终产生一个单值输出tuple
+CombinerAggregator：仅输出一个tuple（该tuple也只有一个字段）。每收到一个输入tuple，CombinerAggregator就会执行init()方法（该方法返回一个初始值），并且用combine()方法汇总这些值，直到剩下一个值为止（聚合值）。如果partition中没有tuple，CombinerAggregator会发送zero()的返回值
+
+projection：经Stream中的project方法处理后的tuple仅保持指定字段（相当于过滤字段）。例如，mystream中的字段为 ["a", "b", "c", "d"]，执行下面代码：
+mystream.project(new Fields("b", "d"))
+则输出流将仅包含["b", "d"]字段
+--------分区和本地操作（Partition-local operations）-------end
+
+
+--------分配操作（Repartitioning operations）------start
+Repartition操作可以改变tuple在各个task之上的划分。Repartition也可以改变Partition的数量。Repartition需要网络传输。下面都是repartition操作：
+1、shuffle：随机将tuple均匀地分发到目标partition里。
+2、broadcast：每个tuple被复制到所有的目标partition里，在DRPC中有用 — 你可以在每个partition上使用stateQuery。
+3、partitionBy：对每个tuple选择partition的方法是：(该tuple指定字段的hash值) mod (目标partition的个数)，该方法确保指定字段相同的tuple能够被发送到同一个partition。（但同一个partition里可能有字段不同的tuple）
+4、global：所有的tuple都被发送到同一个partition。
+5、batchGlobal：确保同一个batch中的tuple被发送到相同的partition中。
+6、patition：该方法接受一个自定义分区的function（实现backtype.storm.grouping.CustomStreamGrouping）
+--------分配操作（Repartitioning operations）------end
+
+
+--------聚合操作操作（Repartitioning operations）------start
+Trident中有aggregate()和persistentAggregate()方法对流进行聚合操作。
+aggregate()在每个batch上独立的执行，persistemAggregate() 对所有batch中的所有tuple进行聚合，并将结果存入state源中。
+aggregate()对流做全局聚合，当使用ReduceAggregator或者Aggregator聚合器时，流先被重新划分成一个大分区(仅有一个partition)，然后对这个partition做聚合操作；另外，当使用CombinerAggregator时，Trident首先对每个partition局部聚合，然后将所有这些partition重新划分到一个partition中，完成全局聚合。相比而言，CombinerAggregator更高效，推荐使用
+--------聚合操作操作（Repartitioning operations）------end
+
+--------在分组流上操作（Operations on grouped streams）------start
+groupBy操作先对流中的指定字段做partitionBy操作，让指定字段相同的tuple能被发送到同一个partition里。然后在每个partition里根据指定字段值对该分区里的tuple进行分组
+--------在分组流上操作（Operations on grouped streams）------end
+
+
+--------Merges(合并) and joins(连接)------start
+合并：将几个stream汇总到一起，最简单的汇总方法是将他们合并成一个stream
+连接：另一种汇总方法是使用join（连接，类似于sql中的连接操作）
+--------Merges(合并) and joins(连接)------end
+
+
+Aggregation operations
+http://www.flyne.org/article/216    
+
+
+
+---------storm概念
+http://blog.csdn.net/suifeng3051/article/details/41118721
+
+parallelismHint------指定多少个线程来执行
+shuffle()--------作用是把tuple随机的route下一层的线程中
+partitionBy-------根据我们的指定字段按照一致性哈希算法route到下一层的线程中，也就是说，如果我们用partitionBy()的话，同一个字段名的tuple会被route到同一个线程中。
+
+
+https://github.com/alibaba/jstorm/blob/37830a5afeb195f987d4b836f0419909dd3e8986/docs/jstorm-doc/QuickStart_cn/Upgrade/UpgradeToJStorm221.md
+com.esotericsoftware.kryo.KryoException: Class cannot be created (missing no-arg constructor)
+
+
+用错了spout
+Received commit for different transaction attempt
+
+storm kafka trident 查看offset
+get /transactional/sit_topo3/user/partition_0/3
+
+http://blog.csdn.net/yangbutao/article/details/17844799
+trident emmit
+其中coordinator是spout，emitter是bolt。
+这里面有两种类型的tuple，一种是事务性的tuple，一种是真实batch中的tuple；
+coordinator为事务性batch发射tuple，Emitter负责为每个batch实际发射tuple。
+具体如下：
+coordinator只有一个，emitter根据并行度可以有多个实例
+emitter以all grouping(广播)的方式订阅coordinator的”batch emit”流
+coordinator (其实是是一个内部的spout)开启一个事务准备发射一个batch时候，进入一个事务的processing阶段，会发射一个事务性tuple(transactionAttempt & metadata)到”batch emit”流
+        *****说明******
+        
+        
+jstorm解析        
+http://blog.csdn.net/u013126638/article/details/64919241
+http://blog.csdn.net/u013126638/article/details/64923486
+http://blog.csdn.net/u013126638/article/details/65444792?utm_source=itdadao&utm_medium=referral
+        
+控制台出现：
+[INFO 2017-08-18 11:41:35 b.s.u.StormBoundedExponentialBackoffRetry:44 pool-17-thread-1] The baseSleepTimeMs [1000] the maxSleepTimeMs [30000] the maxRetries [20]        
+https://github.com/alibaba/jstorm/issues/239        
+
+
+http://dalan-123.iteye.com/blog/2285260
+通过zk管理分区信息
+TransactionalStateZkStorage
+
+
+
+窗口函数：
+http://storm.apache.org/releases/1.1.0/Windowing.html
+
+计算用户停留时间
+http://yuanvi.cn/2016/03/16/storm-sliding-window
+
+如果看了此文你还不懂傅里叶变换，那就过来掐死我吧【完整版】
+http://blog.jobbole.com/70549/
+
+http://blog.csdn.net/yulio1234/article/details/77461021
+Storm窗口机制
+http://blog.csdn.net/xianzhen376/article/details/52945926
+
+storm1.0支持的时间和数量的排列组合有如下：
+withWindow(Count windowLength, Count slidingInterval)
+　　每收到slidingInterval条数据统计最近的windowLength条数据。
+withWindow(Count windowLength)
+　　每收到1条数据统计最近的windowLength条数据。
+withWindow(Count windowLength, Duration slidingInterval)
+　　每过slidingInterval秒统计最近的windowLength条数据。
+withWindow(Duration windowLength, Count slidingInterval)
+　　每收到slidingInterval条数据统计最近的windowLength秒的数据。
+withWindow(Duration windowLength, Duration slidingInterval)
+　　每过slidingInterval秒统计最近的windowLength秒的数据。
+public withWindow(Duration windowLength)
+　　每收到1条数据统计最近的windowLength秒的数据。
+//Tumblingwindow 窗口长度：Tuple数
+withTumblingWindow(BaseWindowedBolt.Count count)
+//Tumblingwindow 窗口长度：时间
+withTumblingWindow(BaseWindowedBolt.Duration duration)
+
+指定以毫秒为单位的时间戳的元组的最大延迟时间。这意味着该元组时间戳不超过这个量是坏了。
+withLag
+
+
+withTimestampField
+http://www.2cto.com/net/201702/602256.html
+
+
+./storm nimbus >/dev/null 2>&1 &
+./storm supervisor >/dev/null 2>&1 &
+./storm ui >/dev/null 2>&1 &
+
+./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogTridentTopo
+ 
+ 
+ org.apache.storm.utils.NimbusLeaderNotFoundException: Could not find leader nimbus from seed hosts
+ http://blog.csdn.net/wfzczangpeng/article/details/52711389
+ 
+ redis链接过高解决方案
+ http://www.cnblogs.com/xymqx/p/4389574.html
+ 
+ 
+ storm 集群需要在/ets/hosts增加别名与ip解析
