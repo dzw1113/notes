@@ -1,0 +1,86 @@
+---------------------geoip mmdb文件更新(IP库更新)
+https://github.com/maxmind/geoipupdate/releases/tag/v2.4.0
+
+wget https://github.com/maxmind/geoipupdate/releases/download/v2.4.0/geoipupdate-2.4.0.tar.gz
+
+tar -xzvf geoipupdate-2.4.0.tar.gz
+
+cd geoipupdate-2.4.0
+
+configure: error: curl header (curl/curl.h) not found. You may need to install a curl development package.
+yum install libcurl libcurl-devel
+
+./configure
+
+make install
+
+默认安装目录：
+/usr/local/share/GeoIP
+/usr/local/share/doc/geoipupdate
+
+/usr/local/bin/geoipupdate -d /mnt/data/geolite2/ -v
+
+https://stackoverflow.com/questions/10184615/cant-find-libcurl-or-curl-curl-h-runtimeerror
+geoiplookup查询IP地址的地理位置信息
+http://www.topjishu.com/7731.html
+
+通过GeoIP2分析访问者IP获取地理位置信息
+http://blog.csdn.net/johnnycode/article/details/42028841
+
+GeoIP数据库自动更新
+http://dev.maxmind.com/zh-hans/geoip/geoipupdate/
+
+更新目录：
+ls -lht /usr/local/share/GeoIP/GeoLite2-City.mmdb
+-rw-r--r-- 1 root root 56M Aug 16 15:42 /usr/local/share/GeoIP/GeoLite2-City.mmdb
+
+
+
+---------------------geoip api安装
+https://github.com/maxmind/libmaxminddb/releases
+
+tar -xzvf libmaxminddb-1.1.5.tar.gz
+
+
+cd libmaxminddb-1.1.5
+
+./configure 
+make && make install
+ldconfig
+
+/usr/local/bin/mmdblookup --help
+
+查看ip
+mmdblookup --file /usr/local/share/GeoIP/GeoLite2-City.mmdb --ip 116.225.64.102
+返回：
+city-城市
+continent-大陆
+country-国家
+location-位子
+registered_country-注册国家
+subdivisions-细分
+
+
+查看指定节点
+mmdblookup --file /usr/local/share/GeoIP/GeoLite2-City.mmdb --ip 8.8.8.8 country names en
+
+第三方api：
+http://dev.maxmind.com/geoip/geoip2/downloadable/
+
+nginx api:
+https://github.com/leev/ngx_http_geoip2_module/blob/master/README.md
+
+mmdblookup指令
+https://maxmind.github.io/libmaxminddb/mmdblookup.html
+
+GeoIP2-java
+http://maxmind.github.io/GeoIP2-java/
+
+geoip2-web-services
+http://dev.maxmind.com/geoip/geoip2/web-services/
+
+logstash-geoip
+http://www.cnblogs.com/Orgliny/p/5755384.html
+
+js api
+https://dev.maxmind.com/zh-hans/geoip/geoip2/javascript/
