@@ -1,0 +1,8 @@
+avro是一个数据序列化框架，可以高效得进行序列化和反序列化，支持C, C++, C#, Java, PHP, Python, 和Ruby语言
+
+
+
+参考：
+http://www.cnblogs.com/fillPv/p/5009737.html
+
+http://avro.apache.org/docs/current/gettingstartedjava.html
