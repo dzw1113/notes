@@ -32,3 +32,7 @@ FROM income_tl it, (SELECT @preVal:=NULL, @curVal:=NULL) r
 ORDER BY it.user_id ASC, it.create_date ASC;
 
 
+
+SELECT A.`user_id`,A.`create_date`,MAX(B.`income`),SUM(B.`income`) FROM income_tl A JOIN income_tl B ON A.`user_id` = B.`user_id`
+WHERE B.`create_date` <= A.`create_date`
+GROUP BY 1,2;
