@@ -1,0 +1,3 @@
+﻿# mrwc.job
+type=command
+command=/home/hadoop/apps/hadoop-2.6.4/bin/hadoop  jar hadoop-mapreduce-examples-2.6.1.jar wordcount /wordcount/input /wordcount/azout

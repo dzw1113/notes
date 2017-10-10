@@ -1,0 +1,29 @@
+<configuration>
+
+<property>
+<name>fs.defaultFS</name>
+<value>viewfs:///</value>
+</property>
+
+<property>
+<name>fs.viewfs.mounttable.default.link./bi</name>
+<value>hdfs://bi/</value>
+</property>
+
+<property>
+<name>fs.viewfs.mounttable.default.link./dt</name>
+<value>hdfs://dt/</value>
+</property>
+
+<!-- 指定hadoop临时目录 -->
+<property>
+<name>hadoop.tmp.dir</name>
+<value>/home/hadoop/apps/hdpdata/</value>
+</property>
+
+<!-- 指定zookeeper地址 -->
+<property>
+<name>ha.zookeeper.quorum</name>
+<value>mini5:2181,mini6:2181,mini7:2181</value>
+</property>
+</configuration>

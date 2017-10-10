@@ -1,0 +1,20 @@
+先启动zookeeper集群
+再在5/6/7上启动journalnode
+hadoop-daemon.sh start journalnode
+
+
+在bi下nn1上  
+hdfs namenode -format –clusterID itcast
+hdfs zkfc -formatZK
+拷贝元数据目录到standby(nn2)
+
+在dt下nn3上  
+hdfs namenode -format –clusterID itcast   ###clusterID必须与bi的相同
+hdfs zkfc -formatZK
+拷贝元数据目录到standby(nn4)
+
+在bi下nn1上
+sbin/start-dfs.sh
+
+在resoucemanager配置的主机上启动yarn
+sbin/start-yarn.sh

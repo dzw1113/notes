@@ -1,0 +1,3 @@
+﻿# hivef.job
+type=command
+command=/home/hadoop/apps/hive/bin/hive -f 'test.sql'
