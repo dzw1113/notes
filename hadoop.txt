@@ -1,0 +1,654 @@
+2.8
+hadoop编译费时，可以直接下载
+apache所有的下载包地址：
+http://archive.apache.org/dist/
+
+maven查找中心库：
+http://search.maven.org
+
+hdfs-namenode-datanode机制
+http://blog.csdn.net/tracker_wjw/article/details/51245274
+
+hadoop分为HDFS系统和YARN集群
+hdfs负责文件存储，
+MR运行在资源调度平台上(YARN),YARN负责MR的资源分配，计算
+以及MR
+HADOOP的核心组件有
+A.	HDFS（分布式文件系统）
+B.	YARN（运算资源调度系统）
+C.	MAPREDUCE（分布式运算编程框架）
+
+
+
+配置：
+hadoop是以SSH形式启动集群，需要设置JAVA_HOME目录
+vim hadoop-env.sh
+JAVA_HOME=/usr/java/jdk1.7.0_79
+
+
+配置site文件：
+http://hadoop.apache.org/docs/stable/
+
+http://blog.csdn.net/lin_fs/article/details/7349497
+------core-site.xml
+文件系统采用HDFS，只有namenode机器才部署
+<!--  fs.default.name - 这是一个描述集群中NameNode结点的URI(包括协议、主机名称、端口号)，集群里面的每一台机器都需要知道NameNode的地址。
+DataNode结点会先在NameNode上注册，这样它们的数据才可以被使用。独立的客户端程序通过这个URI跟DataNode交互，以取得文件的块列表。-->
+
+数据目录，类似zk的目录
+  <property>
+     <name>fs.default.name</name>
+     <value>hdfs://localhost:9000</value>
+  </property>
+  
+-------hdfs-site.xml-----该配置都有默认值，可以不配置,存储与datanode机器数
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>  
+
+
+----------vim mapred-site.xml---------
+        <property>
+             <name>mapreduce.framework.name</name>
+             <value>yarn</value>
+        </property>
+        
+----------vim yarn-site.xml  ---------   
+配置yarN的leader：yarn.resourcemanager.hostname      
+NodeManager上运行的附属服务。需配置成mapreduce_shuffle，才可运行MapReduce程序：yarn.nodemanager.aux-services
+
+
+初始化namenode
+hdfs namenode -format
+INFO common.Storage: Storage directory /mnt/hadoop-2.8.0/hdfs/tmp/dfs/name has been successfully formatted
+
+伪分布式安装，创建hadoop用户，给自己生成私钥密钥，添加auth***.keys
+http://www.powerxing.com/install-hadoop-in-centos/
+
+hadoop配置安装步骤
+http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/SingleCluster.html#Pseudo-Distributed_Operation
+
+在hadoop主目录的hadoop-env.sh目录增加变量：
+export HADOOP_HOME=/mnt/hadoop-2.8.0
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+
+启动，jps最终会看到三个进程
+./sbin/start-dfs.sh
+
+浏览器访问，可以看到hadoop集群信息
+http://ip:50070
+
+HAFS客户端上传文件到文件系统集群：
+echo aaasdasd>./aa.txt
+
+hadoop客户端用文件系统，上传aa到根目录
+hadoop fs -put aa.txt /
+
+客户端查看
+hadoop fs -ls /
+
+最终会存储在core-site.xml里面的tmp目录，层级很深，在finalized目录下的meta文件
+
+hdfs文件系统默认在128M文件才会切分（参数：dfs.blocksize设置）
+
+hadoop进程
+http://blog.csdn.net/young_so_nice/article/details/51212192
+start-all.sh启动后进程，
+20619 SecondaryNameNode
+		它是namenode的一个快照，
+    会根据configuration中设置的值来决定多少时间周期性的
+    去cp一下namenode，记录namenode中的metadata及其它数据 
+20797 ResourceManager
+		ResourceManager (RM) 是管理所有可用的集群资源并协助管理运行
+    在YARN上的分布式应用的主要组件。RM与每个节点的NodeManagers (NMs)
+    和每个应用的ApplicationMasters (AMs)一起工作。
+    a.NodeManagers 遵循来自ResourceManager的指令来管理单一节点上的可用资源。
+    b.ApplicationMasters负责与ResourceManager协商资源并
+    与NodeManagers合作启动容器
+20292 NameNode
+    相当于一个领导者，负责调度 比如你需要存一个640m的文件
+    如果按照64m分块 那么namenode就会把这10个块（这里不考虑副本）
+    分配到集群中的datanode上 并记录对于关系 。
+    当你要下载这个文件的时候namenode就知道在那些节点上给你取这些数据了。
+    它主要维护两个map 一个是文件到块的对应关系 一个是块到节点的对应关系
+20912 NodeManager
+它是YARN中每个节点上的代理，
+    它管理Hadoop集群中单个计算节点，包括与ResourceManger
+    保持通信，监督Container的生命周期管理，监控每个Container的
+    资源使用（内存、CPU等）情况，追踪节点健康状况，管理日志和
+    不同应用程序用到的附属服务（auxiliary service）。
+20440 DataNode
+	 a,DataNode的需要完成的首要任务是K-V存储
+	 b,完成和namenode 通信 ，这个通过IPC 心跳连接实现。
+   此外还有和客户端 其它datanode之前的信息交换
+   c,完成和客户端还有其它节点的大规模通信，这个需要直接通过socket 协议实现。
+
+hadoop端口使用情况
+http://blog.csdn.net/u011414200/article/details/50366406#12-yarn
+
+hadoop文件系统指令
+http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/FileSystemShell.html
+
+
+vim bb.txt
+this is count with for java
+java is too long
+long long ago
+ack time
+
+hadoop fs -put ./bb.txt /bb
+
+提交wordcount任务
+hadoop jar ../share/hadoop/mapreduce/hadoop-mapreduce-examples-2.8.0.jar wordcount /bb.txt /output.txt
+
+查看任务结果
+hadoop fs -cat /output.txt/part-r-00000
+ack	1
+ago	1
+count	1
+for	1
+is	2
+java	2
+long	3
+this	1
+time	1
+too	1
+with	1
+
+
+
+
+MapReduce工作原理
+http://blog.jobbole.com/80619/
+Mapping---输出----Reducer----产生结果
+其中双方协调、容错是由MR application master
+
+
+kafka与hdfs优势
+http://blog.csdn.net/lin_wj1995/article/details/71422507
+
+
+提交自己的demo
+hadoop jar bin/aaa.jar cn.itcast.bigdata.mr.wcdemo.WordcountDriver /README.txt /asd
+
+jps会多个进程：
+MRAppMaster
+
+hadoop切片机智：
+FileInputFormat.getSplits
+a)	简单地按照文件的内容长度进行切片
+b)	切片大小，默认等于block大小
+c)	切片时不考虑数据集整体，而是逐个针对每一个文件单独切片
+
+比如待处理数据有两个文件：
+file1.txt    320M
+file2.txt    10M
+
+经过FileInputFormat的切片机制运算后，形成的切片信息如下：  
+file1.txt.split1--  0~128
+file1.txt.split2--  128~256
+file1.txt.split3--  256~320
+file2.txt.split1--  0~10M
+
+
+
+hadoop中Map产出结果后，数据归类采用的Partitioner	，数据分区是Partitioner，默认的是HashPartitioner,	
+
+
+
+reduce端join算法实现
+1、需求：
+订单数据表t_order：
+id	date	pid	amount
+1001	20150710	P0001	2
+1002	20150710	P0001	3
+1002	20150710	P0002	3
+
+商品信息表t_product
+id	pname	category_id	price
+P0001	小米5	1000	2
+P0002	锤子T1	1000	3
+
+假如数据量巨大，两表的数据是以文件的形式存储在HDFS中，需要用mapreduce程序来实现一下SQL查询运算： 
+select  a.id,a.date,b.name,b.category_id,b.price from t_order a join t_product b on a.pid = b.id
+
+以上做法是，在每个maptask机器上加载商品，读订单形式
+hadoop提供了DistributedCache类，会分发给每台机器的maptask里，maptask启动后会加载到内存里，可以通过代码读取
+通过job.addCacheFile(uri);job.addCacheFile(uri);job.addFileToClassPath(file);
+通过map里的setup加载文件
+
+protected void setup(Context context) throws IOException, InterruptedException {
+			//通过这几句代码可以获取到cache file的本地绝对路径，测试验证用
+			Path[] files = context.getLocalCacheFiles();
+			localpath = files[0].toString();
+			URI[] cacheFiles = context.getCacheFiles();
+			
+			//缓存文件的用法——直接用本地IO来读取
+			//这里读的数据是map task所在机器本地工作目录中的一个小文件
+			in = new FileReader("b.txt");
+			reader =new BufferedReader(in);
+			String line =null;
+			while(null!=(line=reader.readLine())){
+				
+				String[] fields = line.split(",");
+				b_tab.put(fields[0],fields[1]);
+				
+			}
+			IOUtils.closeStream(reader);
+			IOUtils.closeStream(in);
+			
+		}
+
+
+矩阵乘法
+http://www.ruanyifeng.com/blog/2015/09/matrix-multiplication.html
+https://www.zhihu.com/question/21351965
+
+mahout学习路线
+http://blog.fens.me/hadoop-mahout-roadmap/
+
+
+手动安装大数据平台和工具安装比较
+http://www.cnblogs.com/zlslch/p/6118862.html
+
+
+hadoop1.X从SecondaryName的HA到hadoop2.X--ZOOKEEPER的HA
+https://www.iteblog.com/archives/974.html
+Hadoop 1.x中是通过SecondaryName来合并fsimage和edits以此来减小edits文件的大小，从而减少NameNode重启的时间
+Hadoop 2.x中提供了HA机制（解决NameNode单点故障），可以通过配置奇数个JournalNode来实现HA，如何配置今天就不谈了！
+HA机制通过在同一个集群中运行两个NN（active NN & standby NN）来解决NameNode的单点故障，在任何时间，只有一台机器处于Active状态；另一台机器是处于Standby状态。
+Active NN负责集群中所有客户端的操作；而Standby NN主要用于备用，它主要维持足够的状态，如果必要，可以提供快速的故障恢复
+Active NN和Standby NN都对外有RPC接口，通过ZKFC---ZOOKEEPER FAILOVER CONTROLLER调用NN程序，sshfence（隔离）方式，不行再采用shell脚本杀掉进程
+
+客户端访问主NN（多个主NN）的时候，只需要访问逻辑主名称，nameservice id
+http://www.cnblogs.com/sy270321/p/4398815.html
+
+
+YARN的高可用则是采用起多个resourcemanager
+
+hadoop 2.x之HDFS HA讲解之十一测试failover故障转移和隔离、使用sshfence隔离的配置ssh无密钥登陆
+http://blog.csdn.net/pfnie/article/details/52662559
+
+ZKFC原理
+http://blog.csdn.net/zkq_1986/article/details/54952738
+
+
+
+
+------------------------------------------hive
+官网：
+hive.apache.org
+https://cwiki.apache.org/confluence/display/Hive/GettingStarted#GettingStarted-InstallationandConfiguration
+
+用户权限错误
+http://blog.csdn.net/xuguokun1986/article/details/55259591
+
+在mysql开通hive用户
+GRANT ALL PRIVILEGES ON *.* TO 'hive'@'%' IDENTIFIED BY 'hive' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+
+vim hive-site.xml
+加入：
+<configuration>
+<property>
+<name>javax.jdo.option.ConnectionURL</name>
+<value>jdbc:mysql://localhost:3306/hive?createDatabaseIfNotExist=true</value>
+<description>JDBC connect string for a JDBC metastore</description>
+</property>
+
+<property>
+<name>javax.jdo.option.ConnectionDriverName</name>
+<value>com.mysql.jdbc.Driver</value>
+<description>Driver class name for a JDBC metastore</description>
+</property>
+
+<property>
+<name>javax.jdo.option.ConnectionUserName</name>
+<value>hive</value>
+<description>username to use against metastore database</description>
+</property>
+
+<property>
+<name>javax.jdo.option.ConnectionPassword</name>
+<value>hive</value>
+<description>password to use against metastore database</description>
+</property>
+</configuration>
+
+执行数据库初始化，会在数据库建立hive库和表：
+schematool -dbType mysql -initSchema
+
+
+http://blog.csdn.net/xuguokun1986/article/details/55259591
+出现以下情况，需要以hadoop用户去启动hive，因为root用户无法访问hadoop fs系统,同时需要授权hive用户去操作fs
+------------看情况----hadoop fs -chown -R hive:hive /tmp  因为hive连接hadoop会以jdbc的用户名去操作读写
+Permission denied: user=root, access=WRITE, inode="/tmp":hadoop:supergroup:drwxr-xr-x
+
+在hive中执行：
+create table trade_detail(id bigint, account string, income double, expenses double, time string) row format delimited fields terminated by '\t';
+会在/tmp目录里出现trade_detail表，在mysql里也会存储元数据
+
+6.建表(默认是内部表)
+	create table trade_detail(id bigint, account string, income double, expenses double, time string) row format delimited fields terminated by '\t';
+	建分区表
+	create table td_part(id bigint, account string, income double, expenses double, time string) partitioned by (logdate string) row format delimited fields terminated by '\t';
+	建外部表
+	create external table td_ext(id bigint, account string, income double, expenses double, time string) row format delimited fields terminated by '\t' location '/td_ext';
+
+7.创建分区表
+	普通表和分区表区别：有大量数据增加的需要建分区表
+	create table book (id bigint, name string) partitioned by (pubdate string) row format delimited fields terminated by '\t'; 
+
+	分区表加载数据
+	load data local inpath './book.txt' overwrite into table book partition (pubdate='2010-08-22');
+	
+	load data local inpath '/root/data.am' into table beauty partition (nation="USA");
+
+	
+	select nation, avg(size) from beauties group by nation order by avg(size);
+	
+	
+	create table km_user(id bigint, account string) row format delimited fields terminated by '\t';
+	
+	
+	
+jdbc链接hive
+http://blog.csdn.net/wypblog/article/details/17390333
+
+hive变量配置说明	
+https://cwiki.apache.org/confluence/display/Hive/AdminManual+Configuration#AdminManualConfiguration-HiveConfigurationVariables
+https://cwiki.apache.org/confluence/display/Hive/Configuration+Properties
+	
+HIVE也可以通过jar包发布成一个（thrift）服务	，进入bin目录
+./hiveserver2
+把日志输出到控制
+./hiveserver2 --hiveconf hive.root.logger=INFO,console
+hive --service hiveserver2 --hiveconf hive.server2.thrift.port=10001 
+hive.root.logger=INFO,console
+通过beeline可以链接
+
+
+hive-sql语法大全
+http://www.cnblogs.com/HondaHsu/p/4346354.html
+
+Hive自定义函数(UDF、UDAF)
+http://blog.csdn.net/scgaliguodong123_/article/details/46993005
+
+
+分区是粗粒度的划分桶是细粒度的划分，这样做为了可以让查询发生在小范围的数据上以提高效率
+分桶主要是解决join的效率问题，两个表的分桶数必须一致！
+指定逗号为风格符，回车换行为
+create table t_user(id string,name string) clustered by(id) sorted by(id) into 4 buckets row format delimited fields terminated by ',';
+
+#传统的load并不会帮我们分桶，需要走mapReduce程序，建立一模一样的表，再insert到新表
+load data local inpath '/mnt/hive-2.2.0/bin/data.txt' into table t_user;
+表数据：t_user
+1,zhangsan
+2,lisi
+3,wangwu
+4,zhaoliu
+5,sunqian
+6,liushu
+7,wangsicong
+8,lingengxin
+
+根据id的hash值分桶
+create table t_user1(id string,name string) clustered by(id) sorted by(id) into 4 buckets row format delimited fields terminated by ',';
+
+#设置变量,设置分桶为true, 设置reduce数量是分桶的数量个数
+set hive.enforce.bucketing = true;---HIVE2好像没有
+set mapreduce.job.reduces=4;
+
+#此代码会走mr，可以通过DFS指令查看
+INSERT OVERWRITE TABLE t_user1 select id,name from t_user cluster by (id);
+
+dfs -ls /user/hive/warehouse/t_user1;
+-rwxr-xr-x   1 hadoop hadoop         82 2017-09-21 16:38 /user/hive/warehouse/t_user1/000000_0
+-rwxr-xr-x   1 hadoop hadoop          0 2017-09-21 16:38 /user/hive/warehouse/t_user1/000001_0
+-rwxr-xr-x   1 hadoop hadoop          0 2017-09-21 16:38 /user/hive/warehouse/t_user1/000002_0
+-rwxr-xr-x   1 hadoop hadoop          0 2017-09-21 16:38 /user/hive/warehouse/t_user1/000003_0
+
+查看分桶数据
+dfs -cat /user/hive/warehouse/t_user1/000000_0;
+
+自带函数upper
+select id,upper(name) from t_user1;
+
+hive中order by,sort by, distribute by, cluster by作用以及用法
+http://blog.csdn.net/jthink_/article/details/38903775
+ 
+ 
+HIVE自带函数查看与说明
+http://blog.csdn.net/scgaliguodong123_/article/details/46954009 
+ 
+ 
+KNN近邻分类算法---兔子案例
+https://www.joinquant.com/post/2227 
+
+
+hive解析json文本rating.json文件，两种解析：
+1、自己继承udf写一个函数解析
+2、通过python脚本
+Hive的 TRANSFORM 关键字提供了在SQL中调用自写脚本的功能
+适合实现Hive中没有的功能又不想写UDF的情况
+
+使用示例1：下面这句sql就是借用了weekday_mapper.py对数据进行了处理.
+CREATE TABLE u_data_new (
+  movieid INT,
+  rating INT,
+  weekday INT,
+userid INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t';
+
+add FILE weekday_mapper.py;
+
+INSERT OVERWRITE TABLE u_data_new
+SELECT
+  TRANSFORM (movieid , rate, timestring,uid)
+  USING 'python weekday_mapper.py'
+  AS (movieid, rating, weekday,userid)
+FROM t_rating;
+
+其中weekday_mapper.py内容如下
+#!/bin/python
+import sys
+import datetime
+
+for line in sys.stdin:
+  line = line.strip()
+  movieid, rating, unixtime,userid = line.split('\t')
+  weekday = datetime.datetime.fromtimestamp(float(unixtime)).isoweekday()
+  print '\t'.join([movieid, rating, str(weekday),userid])
+
+
+3、自带函数get_json_object
+
+
+
+UDF案例：
+create table rat_json(line string) row format delimited;
+load data local inpath '/mnt/hive-2.2.0/rating.json' into table rat_json;
+
+drop table if exists t_rating;
+create table t_rating(movieid string,rate int,timestring string,uid string)
+row format delimited fields terminated by '\t';
+
+insert overwrite table t_rating
+select split(parsejson(line),'\t')[0]as movieid,split(parsejson(line),'\t')[1] as rate,split(parsejson(line),'\t')[2] as timestring,split(parsejson(line),'\t')[3] as uid from rat_json limit 10;
+
+
+-------
+hive内存溢出解决方案
+http://wenda.chinahadoop.cn/question/4627
+内置jason函数
+insert overwrite table t_rating select get_json_object(line,'$.movie') as moive,get_json_object(line,'$.rate') as rate,get_json_object(line,'$.timeStamp') as tbtimeStamp,get_json_object(line,'$.uid') as uid from rat_json limit 10;
+ 
+-----------
+transform案例:
+
+1、先加载rating.json文件到hive的一个原始表 rat_json
+create table rat_json(line string) row format delimited;
+load data local inpath '/home/hadoop/rating.json' into table rat_json;
+
+2、需要解析json数据成四个字段，插入一张新的表 t_rating
+insert overwrite table t_rating
+select get_json_object(line,'$.movie') as moive,get_json_object(line,'$.rate') as rate  from rat_json;
+
+3、使用transform+python的方式去转换unixtime为weekday
+先编辑一个python脚本文件
+########python######代码
+vi weekday_mapper.py
+#!/bin/python
+import sys
+import datetime
+
+for line in sys.stdin:
+  line = line.strip()
+  movieid, rating, unixtime,userid = line.split('\t')
+  weekday = datetime.datetime.fromtimestamp(float(unixtime)).isoweekday()
+  print '\t'.join([movieid, rating, str(weekday),userid])
+
+保存文件
+然后，将文件加入hive的classpath：
+hive>add FILE /home/hadoop/weekday_mapper.py;
+hive>create TABLE u_data_new as
+SELECT
+  TRANSFORM (movieid, rate, timestring,uid)
+  USING 'python weekday_mapper.py'
+  AS (movieid, rate, weekday,uid)
+FROM t_rating;
+
+select distinct(weekday) from u_data_new limit 10;
+
+
+
+
+-----------------------------------------------------------------------------------------Flume的安装部署
+官网：
+http://flume.apache.org/FlumeUserGuide.html
+
+flume和logstash对比
+flume是source、channal和sink
+logstash注重input和output，也可以通过队列充当channal
+logstash有比flume丰富的多的插件可选，所以在扩展功能上比flume全面
+flume注重数据传输，logstash注重字段预处理（filter）
+http://www.cnblogs.com/xing901022/p/5631445.html
+
+
+Flume原理、安装和使用
+http://www.cnblogs.com/litaiqing/p/4614970.html
+source组件是专用于收集日志的，可以处理各种类型各种格式的日志数据,包括avro、thrift、exec、jms、spooling directory、netcat、sequence generator、syslog、http、legacy、自定义，
+以下用了netcat和spooldir为案例,具体配置参考flume-conf文件夹：
+
+1、Flume的安装非常简单，只需要解压即可，当然，前提是已有hadoop环境
+上传安装包到数据源所在节点上
+然后解压  tar -zxvf apache-flume-1.6.0-bin.tar.gz
+然后进入flume的目录，修改conf下的flume-env.sh，在里面配置JAVA_HOME
+
+2、根据数据采集的需求配置采集方案，描述在配置文件中(文件名可任意自定义)
+3、指定采集方案配置文件，在相应的节点上启动flume agent
+
+先用一个最简单的例子来测试一下程序环境是否正常
+1、先在flume的conf目录下新建一个文件
+vi   netcat-logger.conf
+# 定义这个agent中各组件的名字
+a1.sources = r1
+a1.sinks = k1
+a1.channels = c1
+
+# 描述和配置source组件：r1
+a1.sources.r1.type = netcat
+a1.sources.r1.bind = localhost
+a1.sources.r1.port = 44444
+
+# 描述和配置sink组件：k1
+a1.sinks.k1.type = logger
+
+# 描述和配置channel组件，此处使用是内存缓存的方式
+a1.channels.c1.type = memory
+a1.channels.c1.capacity = 1000
+a1.channels.c1.transactionCapacity = 100
+
+# 描述和配置source  channel   sink之间的连接关系
+a1.sources.r1.channels = c1
+a1.sinks.k1.channel = c1
+
+2、启动agent去采集数据
+bin/flume-ng agent -c conf -f conf/netcat-logger.conf -n a1  -Dflume.root.logger=INFO,console
+-c conf   指定flume自身的配置文件所在目录
+-f conf/netcat-logger.con  指定我们所描述的采集方案
+-n a1  指定我们这个agent的名字
+3、测试
+先要往agent采集监听的端口上发送数据，让agent有数据可采
+随便在一个能跟agent节点联网的机器上
+telnet anget-hostname  port   （telnet localhost 44444）
+
+
+
+
+
+------------------------------------------azkaban调度系统
+官方文档：
+http://azkaban.github.io/azkaban/docs/latest/
+
+git地址：
+https://github.com/azkaban/azkaban
+
+三个部分组成：
+关系数据库（MySQL）
+AzkabanWebServer
+AzkabanExecutorServer
+安装参考：
+13_离线计算系统_第13天（辅助系统）.docx
+
+----------------------------------------------oozie
+http://oozie.apache.org/
+
+
+
+
+-----------------------------------sqoop数据迁移
+sqoop指令文档
+http://sqoop.apache.org/docs/1.4.6/SqoopUserGuide.html
+
+sqoop是apache旗下一款“Hadoop和关系数据库服务器之间传送数据”的工具。
+解压即可，配置：
+$ cd $SQOOP_HOME/conf
+$ mv sqoop-env-template.sh sqoop-env.sh
+打开sqoop-env.sh并编辑下面几行：
+export HADOOP_COMMON_HOME=/home/hadoop/apps/hadoop-2.6.1/ 
+export HADOOP_MAPRED_HOME=/home/hadoop/apps/hadoop-2.6.1/
+export HIVE_HOME=/home/hadoop/apps/hive-1.2.1
+
+导入msql表到hdfs：
+bin/sqoop import \
+--connect jdbc:mysql://localhost:3306/bms \
+--username root \
+--password mysql123 \
+--table km_bus_dict \
+--m 1;
+--target-dir /queryresult 到hdfs指定目录
+
+
+校验：
+hadoop fs -cat /user/hadoop/km_bus_dict/part-m-00000
+
+
+bin/sqoop import \
+--connect jdbc:mysql://localhost:3306/bms \
+--username root \
+--password mysql123 \
+--table km_bus_dict \
+--hive-import
+--m 1;
+
+起客户端查询km_bus_dict表
