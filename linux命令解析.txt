@@ -111,3 +111,9 @@ http://blog.csdn.net/tstana/article/details/70229500
 ps -aux | sort -k4nr | head -8
 
 top （然后按下M，注意大写）
+
+
+授权某个目录给某个用户和组
+chown -R 用户:组 目录
+授权某个目录给某个用户
+chown -R 用户: 目录

@@ -228,3 +228,25 @@ centos6、7安装ffmpeg
 http://www.cnblogs.com/metasequoia/p/6219771.html
 http://www.scalescale.com/tips/nginx/ffmpeg-php-ffmpeg-centos-6-7/
 
+
+参考：http://blog.csdn.net/matrix_laboratory/article/details/53158307
+视频音频加倍播放
+ffmpeg -i 1.mp4 -filter_complex "[0:v]setpts=0.5*PTS[v];[0:a]atempo=1.5[a]" -map "[v]" -map "[a]" 11.mp4
+
+
+ffmpeg添加水印
+http://blog.csdn.net/danielpei1222/article/details/51873798
+https://mp.weixin.qq.com/s?__biz=MzI2OTQxMTM4OQ%3D%3D&mid=2247484874&idx=1&sn=cb7815e543ce80ab5c542a4fa7b5cf73&chksm=eae1f098dd96798e63faed7c7d36c27906a2d59dd29f871d9115c47e8867bbbd72e193f649d2
+http://suppore.cn/597.html
+
+main_w-overlay_w-10 : main_h-overlay_h-10
+ffmpeg -i 11.mp4 -i 11.png -filter_complex overlay avi.mp4
+从视频中间从左到右移动
+ffmpeg -i 11.mp4 -i 11.png -filter_complex "overlay='if(gte(t,1), -w+(t-1)*200, NAN)':(main_h-overlay_h)/2" avi.mp4
+水印定位在视频中心
+ffmpeg -i 11.mp4 -i 11.png -filter_complex "overlay=x=(0):y=(main_h-overlay_h)" avi.mp4
+
+main_w	视频单帧图像宽度
+main_h	视频单帧图像高度
+overlay_w	水印图片的宽度
+overlay_h	水印图片的高度
