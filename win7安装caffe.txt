@@ -1,0 +1,57 @@
+caffe安装前部署参考：
+http://blog.csdn.net/qq_14845119/article/details/52354394
+http://blog.csdn.net/qq_14845119/article/details/52415090
+
+opencv下载：
+http://opencv.org/releases.html
+下载解压配置环境变量
+把D:\caffe\opencv\opencv\build\x64\vc14\bin加入PATH
+cmd输入opencv_version提示3.3.0
+
+
+python下载-----匹配的是2.7
+https://www.python.org/downloads/
+
+
+pip安装（包管理工具）
+https://pip.pypa.io/en/latest/installing/
+
+pip源：
+http://blog.csdn.net/chenghuikai/article/details/55258957
+
+查看pip版本
+python -m pip -V
+
+很慢，可以改源或者自己下下来，本地安装
+python -m pip install numpy
+
+临时指定源
+python -m pip install numpy --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple/
+
+python -m pip install matplotlib --trusted-host mirrors.aliyun.com --index-url http://mirrors.aliyun.com/pypi/simple/
+ 
+
+https://pip.pypa.io/en/latest/user_guide/#installing-packages
+
+
+CUDA9.0下载
+https://developer.nvidia.com/cuda-downloads?target_os=Windows&target_arch=x86_64&target_version=7&target_type=exelocal
+再安装cudnn深度用于深度学习
+https://developer.nvidia.com/cudnn
+
+https://cmake.org/download/
+
+gcc之mingw安装
+https://sourceforge.net/projects/mingw/?source=typ_redirect
+
+yahoo的监黄项目（基于caffe）
+http://blog.csdn.net/xingchenbingbuyu/article/details/52821497
+
+
+微软版本
+https://github.com/microsoft/caffe
+
+
+
+语音识别
+https://github.com/kaldi-asr/kaldi
