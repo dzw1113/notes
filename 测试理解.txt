@@ -1,0 +1,9 @@
+
+渗透测试
+http://www.freebuf.com/articles/web/53056.html
+
+关于《Python绝技：运用Python成为顶级黑客》的学习笔记
+http://blog.csdn.net/u014538198/article/details/73603781
+
+
+每三年OWASP组织会发布一次web安全

@@ -1,0 +1,25 @@
+IDC:数据中心，机房
+ISP:网络接入商，如电信、网通
+ICP:网站域名
+GSLB:负载均衡
+LVS:linux虚拟ip服务
+CDN:分发网络，解决运营商之间的互联互通问题，如上海移动手机号访问电信网络问题
+BOSS系统：Business & Operation Support System,指的是业务运营支撑系统。通常所说的BOSS分为四个部分：计费及结算系统、营业与账务系统、客户服务系统和决策支持系统。
+
+linux发行版：
+redhat：centos、fedora、Mandriva
+Suse：SLES,OPENSuSe
+Debain：Ubuntu
+Gentoo：Gentoo是一个基于Linux的自由操作系统，它能为几乎任何应用程序或需求自动地作出优化和定制
+https://zhidao.baidu.com/question/1365853687749519499.html
+BackTrace/kali linux（黑客）----Kali Linux是一个高级渗透测试和安全审计Linux发行版。作为使用者，我简单的把它理解为，一个特殊的Linux发行版，集成了精心挑选的渗透测试和安全审计的工具，供渗透测试和安全设计人员使用。也可称之为平台或者框架
+
+
+告警；
+系统层次：系统出问题了，发邮件，日志
+业务层次：欢乐斗地主胜率太高检查
+
+
+
+shell:读取命令执行命令
+vim /etc/passwd可以看到每个用户的shell不同
