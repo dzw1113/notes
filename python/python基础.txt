@@ -1,0 +1,126 @@
+ipython自带了系统的一些命令
+python3是用的python3版本
+
+python2升级到python3
+http://www.cnblogs.com/lyy-totoro/p/5603102.html
+
+git安装
+pip install -e git+https://github.com/fabric/fabric/#egg=fabric
+
+pip升级
+python -m pip install -U pip
+
+------------------------------------------start-----------------------------------------------------------------------------------------------fabric
+fabric在python3没法使用
+https://stackoverflow.com/questions/29306752/fabric-import-error-cannot-import-name-ismappingtype
+https://stackoverflow.com/questions/18736274/python-3-support-for-fabric
+
+
+fab常用参数以及案例：
+http://fabric-chs.readthedocs.io/zh_CN/chs/usage/fab.html
+
+http://www.cnblogs.com/ajianbeyourself/p/5930184.html
+http://blog.csdn.net/u013636377/article/details/50570815
+pip install fabric3
+pip list
+fab -H 127.0.0.1 -f fabfile.py host_type
+
+fabric官网
+http://www.fabfile.org/
+https://github.com/mathiasertl/fabric/
+
+
+用于校验一个文件的完整性，文件A从服务器M拷贝到N，md5值和shar1值不变
+md5sum 文件
+sha1sum 文件
+-----------------------------------------end------------------------------------------------------------------------------------------------fabric
+
+python2注释用中文的话加上：
+# -- coding: utf-8 --
+
+单行注释#
+多行注释
+'''
+代码
+'''
+或者"""
+
+
+http://www.cnblogs.com/Ralph-Wang/archive/2013/11/23/3439080.html
+python解析器会把import引用的文件缓存起来，存在目录：__pycache__，目录里有pyc文件后缀
+
+
+is 判断是不是指向同一个内存
+= 判定是不是同一个值
+
+
+
+------------------------------------------------------python-nmap-----端口扫描模块
+win：
+https://nmap.org/download.html
+linux：
+yum install nmap
+
+再安装
+pip uninstall nmap
+pip install python-nmap
+
+使用语法
+http://xael.org/pages/python-nmap-en.html
+
+使用案例
+http://blog.csdn.net/qq_28295425/article/details/54614625
+
+多进程使用出现，调整pool的位子，不能优先于主进程：
+  The "freeze_support()" line can be omitted if the program
+  is not going to be frozen to produce a Windows executable
+http://blog.csdn.net/xiemanr/article/details/71700531
+
+
+
+------------------------------------------------------python scapy-----网络嗅探包
+windows安装scapy
+lxml安装地址
+https://www.lfd.uci.edu/~gohlke/pythonlibs/ 
+pip install lxml-4.1.0-cp27-cp27m-win_amd64.whl
+http://blog.sina.com.cn/s/blog_5c92dd1f0102w2vf.html
+
+官方学习资料
+http://scapy.readthedocs.io/en/latest/usage.html#starting-scapy
+中文翻译
+https://github.com/Larryxi/Scapy_zh-cn
+ 
+ 
+网络数据包从a到b的整体流程
+http://blog.csdn.net/hxkcmp/article/details/48028159
+
+查看指定网络接口的tcp数据包
+tcpdump -i eth1
+http://www.cnblogs.com/ggjucheng/archive/2012/01/14/2322659.html
+
+查看http数据请求包
+tcpdump  -XvvennSs 0 -i eth1 tcp[20:2]=0x4745 or tcp[20:2]=0x4854
+
+tcpdump  -XvvennSs 0 -i eth1 tcp[20:2]=0x4745 or tcp[20:2]=0x4854 -w ./a.cap
+GE=4745   HT=4854
+
+(1)tcp: ip icmp arp rarp 和 tcp、udp、icmp这些选项等都要放到第一个参数的位置，用来过滤数据报的类型
+(2)-i eth1 : 只抓经过接口eth1的包
+(3)-t : 不显示时间戳
+(4)-s 0 : 抓取数据包时默认抓取长度为68字节。加上-S 0 后可以抓到完整的数据包
+(5)-c 100 : 只抓取100个数据包
+(6)dst port ! 22 : 不抓取目标端口是22的数据包
+(7)src net 192.168.1.0/24 : 数据包的源网络地址为192.168.1.0/24
+(8)-w ./target.cap : 保存成cap文件，方便用ethereal(即wireshark)分析
+
+
+可结合tcpdump(命令) + wireshark(图形化)
+操作：　
+在服务器上进行tcpdump -w /tmp/tcp.cap 指定输出外部文件
+scp /tmp/tcp.cap 拷贝文件到你本地
+wireshark & 　启动wireshark
+通过　File -> Open 　打开拷贝下来的文件，这样就可以利用进行数据包分析了
+剩下来的事就非常方便了
+
+
+http://blog.csdn.net/jeanphorn/article/details/45700551

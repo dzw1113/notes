@@ -1,0 +1,12 @@
+
+语音训练和识别
+http://blog.csdn.net/u014365862/article/details/53869701
+
+kaldi上第一个免费的中文语音识别例子
+http://blog.csdn.net/wbgxx333/article/details/50634571
+
+中文语音数据库
+https://github.com/kaldi-asr/kaldi/tree/master/egs/thchs30
+
+清华大学cslt分享的数据库
+https://pan.baidu.com/s/1dEhUghz#list/path=%2F
