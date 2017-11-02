@@ -561,10 +561,26 @@ http://blog.csdn.net/donggua6/article/details/43027953
 ./kafka-run-class kafka.tools.GetOffsetShell --topic uatvisitlog --time -1 --broker-list 10.168.55.122:9092 --partitions 0
 nohup /mnt/logstash-2.4.0/bin/logstash agent -f /mnt/logstash-2.4.0/conf/shipper_sk.conf &>/dev/null &
 
+LogTrident----one
+NginxLogUVTrident
+NginxLogAVCTopo
+NginxLogSKeyTopo
+
+two---entryPage----LogTopoTwo
+
+NginxLogEntryPageTopo
+NginxLogAreaTopo
+
+
+3
+NginxLogStayTopo
+
+4
+NginxLogDayTopo
+
 
 ----UV---numberWork===1
 ./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogUVTrident
-
 
 -----pv=====numberWord=2
 ./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogAVCTopo
@@ -601,3 +617,7 @@ nohup /mnt/logstash-2.4.0/bin/logstash agent -f /mnt/logstash-2.4.0/conf/shipper
 
 -----day puv=====numberWord=1
 ./storm jar das-0.0.1-jar-with-dependencies.jar com.das.storm.topo.trident.NginxLogDayTopo
+
+
+
+

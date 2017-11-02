@@ -103,3 +103,17 @@ http://www.cnblogs.com/polestar/p/6097266.html
 SELECT  *   FROM MySQL.slave_master_info;
 SELECT  *   FROM mysql.slave_relay_log_info; 
 SELECT * FROM mysql.slave_worker_info 
+
+
+
+主从同步Seconds_Behind_Master延迟大
+http://www.cnblogs.com/billyxp/p/3470376.html
+SELECT TIMESTAMPDIFF(HOUR,'2017-10-16 10:45:50','2017-10-12 16:15:39');
+大多数是没有主键导致事务慢，首先提高innodb的写速度
+bulk_insert_buffer_size=24M
+innodb_buffer_pool_size=256M
+再通过SHOW OPEN TABLES查看哪个表，直接删了或者加主键，
+也可以跳过错误
+STOP SLAVE;
+SET GLOBAL sql_slave_skip_counter=1;
+START SLAVE;
