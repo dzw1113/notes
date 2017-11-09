@@ -1,0 +1,18 @@
+#调试Master，在master节点的spark-env.sh中添加SPARK_MASTER_OPTS变量
+export SPARK_MASTER_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=10000"
+#启动Master
+sbin/start-master.sh
+
+
+#调试Worker，在worker节点的spark-env.sh中添加SPARK_WORKER_OPTS变量
+export SPARK_WORKER_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=10001"
+#启动Worker
+sbin/start-slave.sh 1 spark://node-1.itcast.cn:7077
+
+#调试spark-submit + app
+bin/spark-submit --class cn.itcast.spark.WordCount --master spark://node-1.itcast.cn:7077 --driver-java-options "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=10002" /root/wc.jar hdfs://node-1.itcast.cn:9000/words.txt hdfs://node-1.itcast.cn:9000/out2 
+
+#调试spark-submit + app + executor
+bin/spark-submit --class cn.itcast.spark.WordCount --master spark://node-1.itcast.cn:7077 --conf "spark.executor.extraJavaOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=10003" --driver-java-options "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=10002" /root/wc.jar hdfs://node-1.itcast.cn:9000/words.txt hdfs://node-1.itcast.cn:9000/out2  
+
+

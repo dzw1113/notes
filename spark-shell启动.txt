@@ -1,0 +1,3 @@
+
+bin/spark-shell --master spark://node-1.itcast.cn:7077 --total-executor-cores 30 --executor-memory 5g
+
