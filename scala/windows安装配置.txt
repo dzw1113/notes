@@ -1,0 +1,6 @@
+
+下载地址
+http://www.scala-lang.org/download/
+
+配置环境变量
+http://www.scala-lang.org/download/install.html
