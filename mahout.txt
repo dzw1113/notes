@@ -1,0 +1,17 @@
+线上是推荐系统
+线下是广告
+
+
+DMP和DSP的区别
+https://www.zhihu.com/question/29765723
+
+十分钟，让你了解DSP/DMP/SSP/IBCP（广告界专业术语）
+http://blog.sina.com.cn/s/blog_a16be3780102wmsn.html
+
+CPA、CPC、CPS、CPM等网络广告
+https://zhidao.baidu.com/question/314038772.html
+广告行业中常说的 CPC，CPM，CPD，CPT，CPA，CPS 等词的意思是什么?
+https://www.zhihu.com/question/26506736
+
+AD Network-----广告网络渠道
+Ad Exchange-----广告主的广告业务代理人也是这个Ad Exchange的需求方

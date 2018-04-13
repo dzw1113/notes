@@ -250,3 +250,27 @@ main_w	视频单帧图像宽度
 main_h	视频单帧图像高度
 overlay_w	水印图片的宽度
 overlay_h	水印图片的高度
+
+
+
+libavcodec：用于各种类型声音/图像编解码；
+libavutil：包含一些公共的工具函数；
+libavformat：包含多种多媒体容器格式的封装、解封装工具
+libswscale：用于视频场景比例缩放、色彩映射转换；
+libpostproc：用于后期效果处理；
+libavdevice：用于音视频数据采集和渲染等功能的设备相关
+ibswresample：用于音频重采样和格式转换等功能
+libavfilter：包含多媒体处理常用的滤镜功能
+
+ffmpeg必知道的知识点
+http://blog.csdn.net/king1425/article/details/70348374
+
+ffmpeg源码简析（一）结构总览
+http://blog.csdn.net/king1425/article/details/70597642
+
+
+ffmpeg实战教程
+http://blog.csdn.net/column/details/15511.html
+
+ffmpeg 跟我学 视频教程 
+http://www.iqiyi.com/playlist442489402.html

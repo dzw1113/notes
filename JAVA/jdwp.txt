@@ -38,3 +38,5 @@ https://www.ibm.com/developerworks/cn/java/j-lo-jpda3/
 http://www.tinylab.org/use-jdb-to-debug-android-application/#jdb-
 java jdb 命令行调试程序
 http://blog.csdn.net/arkblue/article/details/39718947
+JDWP参数说明
+http://blog.csdn.net/u012007592/article/details/51908291

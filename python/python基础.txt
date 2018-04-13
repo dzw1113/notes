@@ -124,3 +124,7 @@ wireshark & ¡¡Æô¶¯wireshark
 
 
 http://blog.csdn.net/jeanphorn/article/details/45700551
+
+
+python mysql Á¬½Ó³Ø
+https://github.com/LuciferJack/python-mysql-pool#example

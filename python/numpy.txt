@@ -31,3 +31,20 @@ sort()                                           ¶ÔÊı×é½øĞĞÅÅĞò£¬axisÖ¸¶¨ÅÅĞòµÄÖ
 view()/copy()                               view´´ÔìÒ»¸öĞÂµÄÊı×é¶ÔÏóÖ¸ÏòÍ¬Ò»Êı¾İ£»copyÊÇÉî¸´ÖÆ
 tolist()                                          ½«Êı×éÍêÈ«×ªÎªÁĞ±í£¬×¢ÒâÓëÖ±½ÓÊ¹ÓÃlist(array)µÄÇø±ğ
 compress()                                  ·µ»ØÂú×ãÌõ¼şµÄÔªËØ¹¹³ÉµÄÊı×é
+
+numpy.linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None)
+
+¸Ãº¯Êı·µ»ØÒ»×é¾ßÓĞÏàÍ¬¼ä¸ôµÄÊı¾İ/²ÉÑùÖµ£¬Êı¾İµÄ¼ä¸ôÍ¨¹ı¼ÆËã»ñµÃ
+
+²ÎÊı£º
+
+start£ºĞòÁĞµÄÆğÊ¼Öµ
+stop£ºĞòÁĞµÄÖÕÖ¹Öµ£¬³ı·Çendpoint±»ÉèÖÃÎªFalse¡£µ±endpointÎªTrueÊ±£¬Êı¾İµÄ¼ä¸ô£º(stop-start)/num¡£µ±endpointÎªFalseÊ±£¬Êı¾İµÄ¼ä¸ô£º(stop-start)/(num+1)¡£
+num£º²ÉÑùµÄÊıÄ¿£¬Ä¬ÈÏÖµÎª50
+endpoint£ºÎªÕæÔòstopÎª×îºóÒ»¸ö²ÉÑùÖµ£¬Ä¬ÈÏÎªÕæ¡£
+retstep£ºÎªÕæÔò·µ»Ø(samples, step)£¬stepÎª²»Í¬²ÉÑùÖµµÄ¼ä¾à
+dtype£ºÊä³öĞòÁĞµÄÀàĞÍ¡£
+·µ»Ø£º
+
+samples£ºnÎ¬µÄÊı×é
+step£º²ÉÑùÖµµÄ¼ä¾à
