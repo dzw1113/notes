@@ -7,9 +7,186 @@ http://blog.csdn.net/ystyaoshengting/article/details/48436409
 H5视频直播扫盲
 http://blog.csdn.net/dj0379/article/details/51946664
 
+
+-----------------------------SRS--simple rtmp server------------------------------------------------
 SRS
+https://github.com/ossrs/srs#usage
 https://github.com/ossrs/srs/wiki/v3_CN_Home
 https://github.com/ossrs/srs/wiki/v3_CN_SampleHLS
 
 srs之与nginx-rtmp性能对比
 http://blog.csdn.net/zjqlovell/article/details/50785867
+
+
+
+安装：
+Step 1: get SRS
+
+git clone https://github.com/ossrs/srs &&
+cd srs/trunk
+Step 2: build SRS, Requires Centos6.x/Ubuntu12 32/64bits, others see Build(CN,EN).
+
+https://github.com/ossrs/srs/wiki/v2_CN_Build
+查看帮助：./configure -h
+./configure --full --jobs=4
+./configure && make
+-------------------start
+
+build summary:
+     +------------------------------------------------------------------------------------
+     |{disabled} gperf @see: https://github.com/ossrs/srs/wiki/v1_CN_GPERF
+     |     {disabled} gmc @see: http://google-perftools.googlecode.com/svn/trunk/doc/heap_checker.html
+     |     {disabled} gmc: gperf memory check, or memory leak detect
+     |             {disabled} env PPROF_PATH=./objs/pprof HEAPCHECK=normal ./objs/srs -c conf/console.conf 2>gmc.log # start gmc
+     |             {disabled} killall -2 srs # or CTRL+C to stop gmc
+     |             {disabled} cat gmc.log # to analysis memory leak
+     |     {disabled} gmp @see: http://google-perftools.googlecode.com/svn/trunk/doc/heapprofile.html
+     |     {disabled} gmp: gperf memory profile, similar to gcp
+     |             {disabled} rm -f gperf.srs.gmp*; ./objs/srs -c conf/console.conf # start gmp
+     |             {disabled} killall -2 srs # or CTRL+C to stop gmp
+     |             {disabled} ./objs/pprof --text objs/srs gperf.srs.gmp* # to analysis memory profile
+     |     {disabled} gcp @see: http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html
+     |     {disabled} gcp: gperf cpu profile
+     |             {disabled} rm -f gperf.srs.gcp*; ./objs/srs -c conf/console.conf # start gcp
+     |             {disabled} killall -2 srs # or CTRL+C to stop gcp
+     |             {disabled} ./objs/pprof --text objs/srs gperf.srs.gcp* # to analysis cpu profile
+     +------------------------------------------------------------------------------------
+     |{disabled} gprof @see: https://github.com/ossrs/srs/wiki/v1_CN_GPROF
+     |{disabled} gprof: GNU profile tool, @see: http://www.cs.utah.edu/dept/old/texinfo/as/gprof.html
+     |     {disabled} rm -f gmon.out; ./objs/srs -c conf/console.conf # start gprof
+     |     {disabled} killall -2 srs # or CTRL+C to stop gprof
+     |     {disabled} gprof -b ./objs/srs gmon.out > gprof.srs.log && rm -f gmon.out # gprof report to gprof.srs.log
+     +------------------------------------------------------------------------------------
+     |utest: ./objs/srs_utest, the utest for srs
+     +------------------------------------------------------------------------------------
+     |librtmp @see: https://github.com/ossrs/srs/wiki/v1_CN_SrsLibrtmp
+     |librtmp: ./objs/include, ./objs/lib, the srs-librtmp library
+     |     simple handshake: publish/play stream with simple handshake to server
+     |     complex handshake: it's not required for client, recommend disable it
+     |     librtmp-sample: ./research/librtmp, the srs-librtmp client sample
+     |     librtmp-sample: ./research/librtmp/objs/srs_ingest_flv
+     |     librtmp-sample: ./research/librtmp/objs/srs_ingest_rtmp
+     |     librtmp-sample: ./research/librtmp/objs/srs_detect_rtmp
+     |     librtmp-sample: ./research/librtmp/objs/srs_bandwidth_check
+     +------------------------------------------------------------------------------------
+     |{disabled} research: ./objs/research, api server, players, ts info, librtmp.
+     |     {disabled}  @see https://github.com/ossrs/srs/wiki/v2_CN_SrsLibrtmp#srs-librtmp-examples
+     +------------------------------------------------------------------------------------
+     |tools: important tool, others @see https://github.com/ossrs/srs/wiki/v2_CN_SrsLibrtmp#srs-librtmp-examples
+     |     ./objs/srs_ingest_hls -i http://ossrs.net/live/livestream.m3u8 -y rtmp://127.0.0.1/live/livestream
+     +------------------------------------------------------------------------------------
+     |server: ./objs/srs -c conf/srs.conf, start the srs server
+     |     hls @see: https://github.com/ossrs/srs/wiki/v2_CN_DeliveryHLS
+     |     hls: generate m3u8 and ts from rtmp stream
+     |     dvr @see: https://github.com/ossrs/srs/wiki/v2_CN_DVR
+     |     dvr: record RTMP stream to flv files.
+     |     {disabled} nginx @see: https://github.com/ossrs/srs/wiki/v2_CN_DeliveryHLS
+     |     {disabled} nginx: delivery HLS stream by nginx
+     |     {disabled} nginx: sudo ./objs/nginx/sbin/nginx
+     |     ssl @see: https://github.com/ossrs/srs/wiki/v1_CN_RTMPHandshake
+     |     ssl: support RTMP complex handshake for client required, for instance, flash
+     |     {disabled} ffmpeg @see: https://github.com/ossrs/srs/wiki/v1_CN_FFMPEG
+     |     {disabled} ffmpeg: transcode, mux, ingest tool
+     |     {disabled} ffmpeg: ./objs/ffmpeg/bin/ffmpeg
+     |     transcode @see: https://github.com/ossrs/srs/wiki/v1_CN_FFMPEG
+     |     transcode: support transcoding RTMP stream
+     |     ingest @see: https://github.com/ossrs/srs/wiki/v1_CN_Ingest
+     |     ingest: support ingest file/stream/device then push to SRS by RTMP stream
+     |     http-callback @see: https://github.com/ossrs/srs/wiki/v2_CN_HTTPCallback
+     |     http-callback: support http callback for authentication and event injection
+     |     http-server @see: https://github.com/ossrs/srs/wiki/v2_CN_HTTPServer
+     |     http-server: support http server to delivery http stream
+     |     http-api @see: https://github.com/ossrs/srs/wiki/v2_CN_HTTPApi
+     |     http-api: support http api to manage server
+     |     {disabled} stream-caster @see: https://github.com/ossrs/srs/wiki/v2_CN_Streamer
+     |     {disabled} stream-caster: start server to cast stream over other protocols.
+     +------------------------------------------------------------------------------------
+binaries @see: https://github.com/ossrs/srs/wiki/v2_CN_Build
+You can:
+      ./objs/srs -c conf/srs.conf
+                  to start the srs server, with config conf/srs.conf.
+
+------------------end
+
+
+Step 3: start SRS
+./objs/srs -c conf/srs.conf
+
+
+
+--------------rtmp推流
+for((;;)); do \
+        ./objs/ffmpeg/bin/ffmpeg -re -i ./doc/source.200kbps.768x320.flv \
+        -vcodec copy -acodec copy \
+        -f flv -y rtmp://121.40.19.121/live/livestream; \
+        sleep 1; \
+    done
+    
+    
+vlc：rtmp://121.40.19.121/live/livestream    
+
+
+https://github.com/ossrs/srs/wiki/v2_CN_HTTPCallback
+默认的HTTP服务器
+SRS不支持服务器脚本（参考：服务器端脚本），服务器端定制有一个重要的替代功能，就是HTTP回调。譬如当客户端连接到SRS时，回调指定的http地址，这样可以实现验证功能
+token机制：https://github.com/ossrs/srs/wiki/v1_CN_DRM#token-authentication
+python research/api-server/server.py 8085
+
+
+https://github.com/ossrs/srs-bench
+使用linux工具模拟RTMP客户端访问，参考：srs-bench
+
+https://github.com/ossrs/srs/wiki/v1_CN_SampleRealtime
+SRS RTMP 低延迟配置
+
+
+
+直播体系分析
+http://blog.csdn.net/gitchat/article/details/78785463
+
+
+jw player是一个在网页上使用的Flash视频、音频以及图片开源播放器，支持Sliverlight播放，也支持各种流和播放清单格式，并播放背景音乐。
+
+
+
+FFMPEG参数
+https://github.com/ossrs/srs/wiki/v1_CN_FFMPEG
+
+FFMPEG转码部署实例
+https://github.com/ossrs/srs/wiki/v1_CN_SampleFFMPEG
+
+
+SRS主备热部署
+https://github.com/ossrs/srs/wiki/v1_CN_SampleForward
+
+
+转封装成HTTP-FLV流
+https://github.com/ossrs/srs/wiki/v2_CN_SampleHttpFlv
+
+录制成FLV
+https://github.com/ossrs/srs/wiki/v2_CN_DVR
+
+
+SRS提供HTTP接口，供外部程序管理服务器,
+https://github.com/ossrs/srs/wiki/v2_CN_HTTPApi#kickoff-client
+
+http测试地址or curl指令
+http://ossrs.net/srs.release/http-rest/
+
+带宽测试
+https://github.com/ossrs/srs/wiki/v1_CN_BandwidthTestTool
+
+帮助文档
+https://github.com/ossrs/srs/wiki/v2_CN_Docs
+
+RTMP低延时配置
+https://github.com/ossrs/srs/wiki/v2_CN_SampleRealtime
+
+日志配置
+https://github.com/ossrs/srs/wiki/v1_CN_SrsLog
+
+
+ffmpeg -re -i source.200kbps.768x320.flv -vcodec copy -acodec copy -f flv -y rtmp://121.40.19.121/live/123;
+./objs/ffmpeg/bin/ffmpeg -re -i ./doc/aaa.mp4 -vcodec copy -acodec copy -f flv -y rtmp://live.kidmadeto.com/live/123; 
+
+
