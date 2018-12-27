@@ -108,3 +108,6 @@ https://jmeter-plugins.org/downloads/all/
 soap组件
 https://github.com/tilln/jmeter-wssecurity/releases
 https://github.com/spinning10/JMeterSoapSampler/wiki
+
+jmeter https访问百度出现：NET::ERR_CERT_INVALID
+导入jmeter证书到浏览器，证书在jmeter bin目录：ApacheJMeterTemporaryRootCA.crt
