@@ -111,3 +111,6 @@ https://github.com/spinning10/JMeterSoapSampler/wiki
 
 jmeter https访问百度出现：NET::ERR_CERT_INVALID
 导入jmeter证书到浏览器，证书在jmeter bin目录：ApacheJMeterTemporaryRootCA.crt
+
+jmeter官方文档
+https://jmeter.apache.org/usermanual/component_reference.html#View_Results_Tree
