@@ -1,42 +1,45 @@
-eclipse¿ª·¢¹¤¾ßµ÷ÊÔÓÃµÄÊÇjdwpÐ­Òé£¬JDWP ÊÇÓïÑÔÎÞ¹ØµÄ£¬¶ÔÓÚµ÷ÊÔJava³ÌÐòÀ´Ëµ,Java Debug Wire Protocol (JDWP, Javaµ÷ÊÔÏßÐ­Òé)ÊÇ²»¿É¶àµÃµÄºÃ¶«Î÷
-Î»ÓÚ:tool.jar:com.sun.tools.jdi.JDWP
+eclipseå¼€å‘å·¥å…·è°ƒè¯•ç”¨çš„æ˜¯jdwpåè®®ï¼ŒJDWP æ˜¯è¯­è¨€æ— å…³çš„ï¼Œå¯¹äºŽè°ƒè¯•Javaç¨‹åºæ¥è¯´,Java Debug Wire Protocol (JDWP, Javaè°ƒè¯•çº¿åè®®)æ˜¯ä¸å¯å¤šå¾—çš„å¥½ä¸œè¥¿
+ä½äºŽ:tool.jar:com.sun.tools.jdi.JDWP
 
-linux¿ªÆôÔ¶³Ìµ÷ÊÔ´úÂë£º
+linuxå¼€å¯è¿œç¨‹è°ƒè¯•ä»£ç ï¼š
 JAVA_OPTIONS+=("-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=10001,suspend=n")
-Õý³£options
+æ­£å¸¸options
 JAVA_OPTIONS+=("-Xmx2048m -Xmn512m -Xloggc:${JETTY_HOME}/temp_gc.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${JETTY_HOME}")
 
-windows¿ªÆôµ÷ÊÔ£º
+windowså¼€å¯è°ƒè¯•ï¼š
 java -Xdebug -Xrunjdwp:transport=dt_shmem,address=debug,server=y,suspend=y Test
-eclipseÏÂdebugÄ£Ê½£º
-²é¿´command line£º
+eclipseä¸‹debugæ¨¡å¼ï¼š
+æŸ¥çœ‹command lineï¼š
 "D:\Program Files\Java\jdk1.8.0_131\bin\javaw.exe" -agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:64908 -Dfile.encoding=UTF-8 -classpath "E:\canal\agent\target\classes;D:\Program Files\Java\jdk1.8.0_131\lib\tools.jar;C:\Users\dzw\.m2\repository\asm\asm-commons\3.3.1\asm-commons-3.3.1.jar;C:\Users\dzw\.m2\repository\asm\asm-tree\3.3.1\asm-tree-3.3.1.jar;C:\Users\dzw\.m2\repository\asm\asm\3.3.1\asm-3.3.1.jar" jdwp.TargetVm
 
 
-Í¨¹ýjdbÃüÁîÁ´½Ó·þÎñÆ÷
-WindowsÉÏ:
+é€šè¿‡jdbå‘½ä»¤é“¾æŽ¥æœåŠ¡å™¨
+Windowsä¸Š:
 jdb -attach debug
-¿ØÖÆÌ¨Êä³öÈçÏÂ£º
+æŽ§åˆ¶å°è¾“å‡ºå¦‚ä¸‹ï¼š
 
 E:\canal\otter>jdb -attach debug
-ÉèÖÃÎ´²¶»ñµÄjava.lang.Throwable
-ÉèÖÃÑÓ³ÙµÄÎ´²¶»ñµÄjava.lang.Throwable
-ÕýÔÚ³õÊ¼»¯jdb...
-> VM ÒÑÆô¶¯: µ±Ç°µ÷ÓÃ¶ÑÕ»ÉÏÃ»ÓÐÖ¡
+è®¾ç½®æœªæ•èŽ·çš„java.lang.Throwable
+è®¾ç½®å»¶è¿Ÿçš„æœªæ•èŽ·çš„java.lang.Throwable
+æ­£åœ¨åˆå§‹åŒ–jdb...
+> VM å·²å¯åŠ¨: å½“å‰è°ƒç”¨å †æ ˆä¸Šæ²¡æœ‰å¸§
 main[1] exit
 
-Linux²Ù×÷ÏµÍ³ÉÏ:
+Linuxæ“ä½œç³»ç»Ÿä¸Š:
 jdb -attach 8888
 
 
-²Î¿¼£º
-Ê¹ÓÃ JDWP ½øÐÐÔ¶³Ìµ÷ÊÔ
+é—®é¢˜ï¼šDebugger failed to attach: handshake failed - received >GET /c_hello?a< - ex
+è§£å†³ï¼šæ¢ä¸ªç«¯å£ã€‚
+
+å‚è€ƒï¼š
+ä½¿ç”¨ JDWP è¿›è¡Œè¿œç¨‹è°ƒè¯•
 http://blog.csdn.net/renfufei/article/details/52756556
-JDWP Ð­Òé¼°ÊµÏÖ
+JDWP åè®®åŠå®žçŽ°
 https://www.ibm.com/developerworks/cn/java/j-lo-jpda3/
-Ê¹ÓÃ JDB µ÷ÊÔ Android Ó¦ÓÃ³ÌÐò
+ä½¿ç”¨ JDB è°ƒè¯• Android åº”ç”¨ç¨‹åº
 http://www.tinylab.org/use-jdb-to-debug-android-application/#jdb-
-java jdb ÃüÁîÐÐµ÷ÊÔ³ÌÐò
+java jdb å‘½ä»¤è¡Œè°ƒè¯•ç¨‹åº
 http://blog.csdn.net/arkblue/article/details/39718947
-JDWP²ÎÊýËµÃ÷
+JDWPå‚æ•°è¯´æ˜Ž
 http://blog.csdn.net/u012007592/article/details/51908291
