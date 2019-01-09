@@ -1,119 +1,122 @@
-grep��
-Linuxϵͳ��grep������һ��ǿ����ı��������ߣ�����ʹ���������ʽ�����ı�������ƥ ����д�ӡ������
-grepȫ����Global Regular Expression Print����ʾȫ���������ʽ�汾������ʹ��Ȩ���������û�
-��c��ֻ���ƥ���еļ�����
-��I�������ִ� Сд(ֻ�����ڵ��ַ�)��
-��h����ѯ���ļ�ʱ����ʾ�ļ�����
-��l����ѯ���ļ�ʱֻ�������ƥ���ַ����ļ�����
-��n����ʾƥ���м� �кš�
-��s������ʾ�����ڻ���ƥ���ı��Ĵ�����Ϣ��
-��v����ʾ������ƥ���ı��������С�
-pattern�������ʽ��Ҫ������
-\�� �����������ʽ�������ַ���ԭ�к��塣
-^��ƥ���������ʽ�Ŀ�ʼ�С�
-$: ƥ���������ʽ�Ľ����С�
-\<����ƥ��������� ʽ���п�ʼ��
-\>����ƥ���������ʽ���н�����
-[ ]�������ַ�����[A]��A����Ҫ�� ��
-[ - ]����Χ����[A-Z]����A��B��Cһֱ��Z������Ҫ�� ��
-�������еĵ����ַ���
-* �����ַ������ȿ���Ϊ0��
+grep：
+Linux系统中grep命令是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹 配的行打印出来。
+grep全称是Global Regular Expression Print，表示全局正则表达式版本，它的使用权限是所有用户
+－c：只输出匹配行的计数。
+－I：不区分大 小写(只适用于单字符)。
+－h：查询多文件时不显示文件名。
+－l：查询多文件时只输出包含匹配字符的文件名。
+－n：显示匹配行及 行号。
+－s：不显示不存在或无匹配文本的错误信息。
+－v：显示不包含匹配文本的所有行。
+pattern正则表达式主要参数：
+\： 忽略正则表达式中特殊字符的原有含义。
+^：匹配正则表达式的开始行。
+$: 匹配正则表达式的结束行。
+\<：从匹配正则表达 式的行开始。
+\>：到匹配正则表达式的行结束。
+[ ]：单个字符，如[A]即A符合要求 。
+[ - ]：范围，如[A-Z]，即A、B、C一直到Z都符合要求 。
+。：所有的单个字符。
+* ：有字符，长度可以为0。
 
 
 
-xargs����һ��ǿ������������ܹ�����һ������������Ȼ�󴫵ݸ�����һ�����������һЩ�����Чʹ��xargs ��ʵ������
+xargs：是一个强有力的命令，它能够捕获一个命令的输出，然后传递给另外一个命令，下面是一些如何有效使用xargs 的实用例子
 
-1. ���㳢����rm ɾ��̫����ļ�������ܵõ�һ��������Ϣ��/bin/rm Argument list too long. ��xargs ȥ�����������
+1. 当你尝试用rm 删除太多的文件，你可能得到一个错误信息：/bin/rm Argument list too long. 用xargs 去避免这个问题
 
-2�����/etc/ ������*.conf ��β���ļ��б����м��ֲ�ͬ�ķ����ܵõ���ͬ�Ľ������������ӽ�����ʾ����ôʵ��xargs ��
-�����������ʵ�� xargs��find �����������ݸ�ls -l
-find /etc -name "*.conf" | xargs ls �Cl 
+2、获得/etc/ 下所有*.conf 结尾的文件列表，有几种不同的方法能得到相同的结果，下面的例子仅仅是示范怎么实用xargs ，
+在这个例子中实用 xargs将find 命令的输出传递给ls -l
+find /etc -name "*.conf" | xargs ls –l 
 
-3. ��������һ���ļ������˺ܶ���ϣ�����ص�URL, ���ܹ�ʹ��xargs ������������
-cat url-list.txt | xargs wget �Cc 
+3. 假如你有一个文件包含了很多你希望下载的URL, 你能够使用xargs 下载所有链接
+cat url-list.txt | xargs wget –c 
 
-4. �������е�jpg �ļ�������ѹ����
+4. 查找所有的jpg 文件，并且压缩它
 find / -name *.jpg -type f -print | xargs tar -cvzf images.tar.gz 
 
 
-5. �������е�ͼƬ�ļ���һ���ⲿ��Ӳ������ 
+5. 拷贝所有的图片文件到一个外部的硬盘驱动 
 ls *.jpg | xargs -n1 -i cp {} /external-hard-drive/directory 
 
-�ܵ���ʵ�֡���ǰ��ı�׼�����Ϊ����ı�׼���롱
-xargs��ʵ�֡�����׼������Ϊ����Ĳ�����
-echo "--help"|cat        �������help
-echo "--help"|xargs cat    ����cat --help
+管道是实现“将前面的标准输出作为后面的标准输入”
+xargs是实现“将标准输入作为命令的参数”
+echo "--help"|cat        单纯输出help
+echo "--help"|xargs cat    类似cat --help
 
 
 
 
 
 
-awk��awk��õĹ���һ���Ǳ���һ���ļ��е�ÿһ�У�Ȼ��ֱ���ļ���ÿһ�н��д�����һ��������awk������ʽ���£�
+awk：awk最常用的工作一般是遍历一个文件中的每一行，然后分别对文件的每一行进行处理，一个完整的awk命令形式如下：
 awk  [options]  'BEGIN{ commands } pattern{ commands } END{ commands }'  file
-����options��ʾawk�Ŀ�ѡ��������ѡ�������õĿ����� -F ��ָ�����ļ���ÿһ�зָ����еķָ����š�
-�������ź���ĵ��������������������awk�ĳ���ű���awk��Ҫ���ļ�ÿһ�зָ���ÿһ����������
-file����awkҪ�������ļ����ơ�������ͨ��demo�����awk�Ĺ���
+其中options表示awk的可选的命令行选项，其中最常用的恐怕是 -F 它指定将文件中每一行分隔成列的分隔符号。
+而紧接着后面的单引号里面的所有内容是awk的程序脚本，awk需要对文件每一行分割后的每一列做处理。
+file则是awk要处理的文件名称。让我们通过demo来体会awk的功能
 
 echo '11 22 33 44' | awk '{print $3" "$2" "$1}'
-�����33 22 11
+输出：33 22 11
 
 
 
 
-update-alternatives��
+update-alternatives：
 
-
-lsof���鿴����˿�����Щ�����ڷ���
+lsof(list open files)是一个列出当前系统打开文件的工具
+lsof：查看这个端口有那些进程在访问
 yum install -y lsof
 lsof -i:22
 lsof -i tcp:80
 
 
 
-netstat: ����������ʾ�������������Ϣ�����������ӣ�·�ɱ����ӿ�״̬ (Interface Statistics)��masquerade ���ӣ��ಥ��Ա (Multicast Memberships) �ȵ�
+netstat: 命令用于显示各种网络相关信息，如网络连接，路由表，接口状态 (Interface Statistics)，masquerade 连接，多播成员 (Multicast Memberships) 等等
 
 
 
 
-who��who ������Ƕ�ȡ�ļ� "/var/rum/utmp" 
+who：who 命令就是读取文件 "/var/rum/utmp" 
 
-last ���
-����˵�����г�Ŀǰ���ȥ����ϵͳ���û������Ϣ��
-�����������last [-adRx][-f ][-n ][�ʺ�����...][�ն˻����...]
-��������˵��������ִ��lastָ������ȡλ��/var/logĿ¼�£�����Ϊwtmp���ļ������Ѹø��ļ������ݼ�¼�ĵ���ϵͳ���û�����ȫ����ʾ������
-�����Ρ�������
-����-a ���ѴӺδ�����ϵͳ���������ƻ�IP��ַ����ʾ�����һ�С�
-����-d ����IP��ַת�����������ơ�
-����-f  ��ָ����¼�ļ���
-����-n ��- �������г���������ʾ������
-����-R ������ʾ����ϵͳ���������ƻ�IP��ַ��
-����-x ����ʾϵͳ�ػ������¿������Լ�ִ�еȼ��ĸı����Ϣ��
+last 命令：
+功能说明：列出目前与过去登入系统的用户相关信息。
+　　语　　法：last [-adRx][-f ][-n ][帐号名称...][终端机编号...]
+　　补充说明：单独执行last指令，它会读取位于/var/log目录下，名称为wtmp的文件，并把该给文件的内容记录的登入系统的用户名单全部显示出来。
+　　参　　数：
+　　-a 　把从何处登入系统的主机名称或IP地址，显示在最后一行。
+　　-d 　将IP地址转换成主机名称。
+　　-f  　指定记录文件。
+　　-n 或- 　设置列出名单的显示列数。
+　　-R 　不显示登入系统的主机名称或IP地址。
+　　-x 　显示系统关机，重新开机，以及执行等级的改变等信息。
 
 last -f /var/log/wtmp
-/var/log/wtmpҲ��һ���������ļ�����¼ÿ���û��ĵ�¼�����ͳ���ʱ�����Ϣ��
+/var/log/wtmp也是一个二进制文件，记录每个用户的登录次数和持续时间等信息。
 
 
 
-tcpdump:linuxץȥ���ݰ��ġ�ͷ��---dump the traffic on a network
+tcpdump:linux抓去数据包的‘头’---dump the traffic on a network
 tcpdump tcp port 23 and host 210.27.48.1
 
-Linux tcpdump�������
+Linux tcpdump命令详解
 http://www.cnblogs.com/ggjucheng/archive/2012/01/14/2322659.html
 
 
-�����滻�ļ��������
+批量替换文件里的内容
 sed -i "s/tasks.max=1/tasks.max=5/g" `grep tasks.max=1 -rl ./*.properties`
 
 
 http://blog.csdn.net/tstana/article/details/70229500
-�鿴ռ�ڴ���8������
+查看占内存大的8个进程
 ps -aux | sort -k4nr | head -8
 
-top ��Ȼ����M��ע���д��
+top （然后按下M，注意大写）
 
 
-��Ȩĳ��Ŀ¼��ĳ���û�����
-chown -R �û�:�� Ŀ¼
-��Ȩĳ��Ŀ¼��ĳ���û�
-chown -R �û�: Ŀ¼
+授权某个目录给某个用户和组
+chown -R 用户:组 目录
+授权某个目录给某个用户
+chown -R 用户: 目录
+
+
+yum -y install lrzsz
