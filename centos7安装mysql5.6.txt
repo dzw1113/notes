@@ -67,6 +67,13 @@ vim /etc/my.cnf
 mv /mnt/my.cnf /etc/
 vim /etc/my.cnf
 
+5.7-centos修改密码默认策略：
+set global validate_password_policy=LOW;
+set global validate_password_length=6;
+ALTER USER 'root'@'localhost' IDENTIFIED BY '123456';
+flush privileges;
+
+
 创建数据目录
 mkdir -p /mnt/mysql/data
 cd /mnt/mysql/data
