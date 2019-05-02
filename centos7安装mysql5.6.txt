@@ -1,33 +1,33 @@
-MySQL ÒÀÀµ libaio£¬ËùÒÔÏÈÒª°²×° libaio
-# ¼ìË÷Ïà¹ØĞÅÏ¢
+MySQL ä¾èµ– libaioï¼Œæ‰€ä»¥å…ˆè¦å®‰è£… libaio
+# æ£€ç´¢ç›¸å…³ä¿¡æ¯
 yum search libaio  
-# °²×°ÒÀÀµ°ü
+# å®‰è£…ä¾èµ–åŒ…
 yum install libaio
 
-¼ì²é MySQL ÊÇ·ñÒÑ°²×°
+æ£€æŸ¥ MySQL æ˜¯å¦å·²å®‰è£…
 yum list installed | grep mysql
 yum -y remove mysql-libs.x86_64
 
-ÏÂÔØ MySQL Yum Repository
+ä¸‹è½½ MySQL Yum Repository
 wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
 
 mv mysql-community-release-el7-5.noarch.rpm /mnt/
 
 
-Ìí¼Ó MySQL Yum Repository µ½ÄãµÄÏµÍ³ repository ÁĞ±íÖĞ
+æ·»åŠ  MySQL Yum Repository åˆ°ä½ çš„ç³»ç»Ÿ repository åˆ—è¡¨ä¸­
 yum localinstall mysql-community-release-el7-5.noarch.rpm 
 
-ÑéÖ¤ÏÂÊÇ·ñÌí¼Ó³É¹¦
+éªŒè¯ä¸‹æ˜¯å¦æ·»åŠ æˆåŠŸ
 yum repolist enabled | grep "mysql.*-community.*"
 
-Ñ¡ÔñÒªÆôÓÃ MySQL °æ±¾
+é€‰æ‹©è¦å¯ç”¨ MySQL ç‰ˆæœ¬
 yum repolist all | grep mysql
 
-¿ÉÒÔÍ¨¹ıÀàËÆÏÂÃæµÄÓï¾äÀ´Æô¶¯Ä³Ğ©°æ±¾
+å¯ä»¥é€šè¿‡ç±»ä¼¼ä¸‹é¢çš„è¯­å¥æ¥å¯åŠ¨æŸäº›ç‰ˆæœ¬
 yum-config-manager --disable mysql56-community
 yum-config-manager --enable mysql57-community-dmr
-»òÕßÍ¨¹ıĞŞ¸Ä 
-/etc/yum.repos.d/mysql-community.repo ÎÄ¼ş
+æˆ–è€…é€šè¿‡ä¿®æ”¹ 
+/etc/yum.repos.d/mysql-community.repo æ–‡ä»¶
 # Enable to use MySQL 5.6
 [mysql56-community]
 name=MySQL 5.6 Community Server
@@ -35,14 +35,14 @@ baseurl=http://repo.mysql.com/yum/mysql-5.6-community/el/7/$basearch/
 enabled=1
 gpgcheck=1
 gpgkey=file:/etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
-ÆäÖĞ enabled=0 ÊÇÖ¸½ûÓÃ£¬enabled=1 Ö¸ÆôÓÃ¡£
-×¢Òâ£º ÈÎºÎÊ±ºò£¬Ö»ÄÜÆôÓÃÒ»¸ö°æ±¾
+å…¶ä¸­ enabled=0 æ˜¯æŒ‡ç¦ç”¨ï¼Œenabled=1 æŒ‡å¯ç”¨ã€‚
+æ³¨æ„ï¼š ä»»ä½•æ—¶å€™ï¼Œåªèƒ½å¯ç”¨ä¸€ä¸ªç‰ˆæœ¬
 
 
-Í¨¹ı Yum À´°²×° MySQL
+é€šè¿‡ Yum æ¥å®‰è£… MySQL
 yum install mysql-community-server
 
-¿ÉÒÔ¿´µ½ MySQL µÄ°²×°Ä¿Â¼ÊÇ /usr/bin/
+å¯ä»¥çœ‹åˆ° MySQL çš„å®‰è£…ç›®å½•æ˜¯ /usr/bin/
 whereis mysql
 
 
@@ -51,21 +51,23 @@ systemctl status  mysqld
 systemctl stop mysqld
 systemctl status  mysqld
 
-·À»ğÇ½¿ªÆôÉèÖÃ
+é˜²ç«å¢™å¼€å¯è®¾ç½®
 systemctl start firewalld
 firewall-cmd --state
 firewall-cmd --permanent --zone=public --add-port=3306/tcp
 firewall-cmd --permanent --zone=public --add-port=3306/udp
 firewall-cmd --reload 
 
-MySQL °²È«ÉèÖÃ
+åœ¨å®‰è£…æ—¶ä¼šä¸ºrootç”¨æˆ·ç”Ÿæˆä¸€ä¸ªä¸´æ—¶çš„éšæœºå¯†ç ï¼Œå­˜æ”¾åœ¨/var/log/mysqld.log ä¸­ã€‚
+
+MySQL å®‰å…¨è®¾ç½®
 systemctl start mysqld
 mysql_secure_installation
 vim /etc/my.cnf
 mv /mnt/my.cnf /etc/
 vim /etc/my.cnf
 
-´´½¨Êı¾İÄ¿Â¼
+åˆ›å»ºæ•°æ®ç›®å½•
 mkdir -p /mnt/mysql/data
 cd /mnt/mysql/data
 ls
@@ -77,23 +79,23 @@ systemctl start mysqld
 systemctl status mysqld
 
 
-´´½¨Ô¶³ÌÕË»§
+åˆ›å»ºè¿œç¨‹è´¦æˆ·
 mysql -h10.117.180.197 -uroot -p
 CREATE USER '1111'@'%' IDENTIFIED BY '11';
 GRANT ALL PRIVILEGES ON *.* TO 'kmadmin'@'%'
 mysql -h10.117.180.197 -uroot -p
 
 
-¼ÓÈë¿ª»úÆô¶¯
+åŠ å…¥å¼€æœºå¯åŠ¨
 systemctl is-enabled mysql.service;echo $?
 chkconfig --levels 235 mysqld on
 
-²é¿´½ø³Ì´ò¿ª×î´óÊı
+æŸ¥çœ‹è¿›ç¨‹æ‰“å¼€æœ€å¤§æ•°
 lsof -p 15312 | wc -l
 
 cat /proc/15312/limits
 
-centos7ÏÂmysql´ò¿ªÎÄ¼ş×î´óÊıµ÷Õû£º
+centos7ä¸‹mysqlæ‰“å¼€æ–‡ä»¶æœ€å¤§æ•°è°ƒæ•´ï¼š
 vim /etc/systemd/system/mysql.service
 
 [Service]
@@ -102,14 +104,14 @@ Group=mysql
 
 LimitNOFILE=30000
 
-²é¿´ÏµÍ³×î´ó´ò¿ªÎÄ¼şÊı
+æŸ¥çœ‹ç³»ç»Ÿæœ€å¤§æ‰“å¼€æ–‡ä»¶æ•°
 sysctl -a|grep fs.file-max
-²Î¿¼£º
+å‚è€ƒï¼š
 http://www.mamicode.com/info-detail-1382100.html
 
 
-mysql´ò¿ªÎÄ¼ş×î´óÊıµ÷Õû
+mysqlæ‰“å¼€æ–‡ä»¶æœ€å¤§æ•°è°ƒæ•´
 https://dev.mysql.com/doc/refman/5.5/en/packet-too-large.html
 
-mysql ÓÅ»¯Ö®¿ªÆôÂı²éÑ¯²¢·ÖÎöÔ­Òò
+mysql ä¼˜åŒ–ä¹‹å¼€å¯æ…¢æŸ¥è¯¢å¹¶åˆ†æåŸå› 
 http://blog.csdn.net/haiqiao_2010/article/details/25138099
