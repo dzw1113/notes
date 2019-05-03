@@ -1,22 +1,24 @@
+
+
 http://www.rabbitmq.com/install-rpm.html
 
-
-1¡¢ÏÂÔØerlang
+rpm:erlang:https://github.com/rabbitmq/erlang-rpm/releases
+1ã€ä¸‹è½½erlang
 http://www.erlang.org/downloads
 scp root@10.168.55.122:/mnt/package/otp_src_19.1.tar.gz .
 scp root@10.168.55.122:/mnt/package/rabbitmq-server-3.6.5-1.noarch.rpm .
 
-°²×°erlangËùĞè»·¾³
+å®‰è£…erlangæ‰€éœ€ç¯å¢ƒ
 yum -y install make gcc gcc-c++ kernel-devel m4 ncurses-devel openssl-devel unixODBC-dev
 
-2¡¢tar -xvzf otp_src_19.1.tar.gz
+2ã€tar -xvzf otp_src_19.1.tar.gz
 ./configure --prefix=/usr/erlang --without-javac
 
-3¡¢make 
+3ã€make 
 make install
 
-Ğ£Ñé£º
-½øÈë/usr/erlang/bin
+æ ¡éªŒï¼š
+è¿›å…¥/usr/erlang/bin
 ./erl
 
 vim /etc/profile
@@ -25,36 +27,36 @@ export PATH=${ERLANG_HOME}/bin:${PATH}
 
 source /etc/profile
 
-4¡¢°²×°rabbitmq
+4ã€å®‰è£…rabbitmq
 rpm --import https://www.rabbitmq.com/rabbitmq-release-signing-key.asc
 yum install rabbitmq-server-3.6.5-1.noarch.rpm
 
 
-5¡¢ÏÂÔØÑÓÊ±¶ÓÁĞ²å¼ş
+5ã€ä¸‹è½½å»¶æ—¶é˜Ÿåˆ—æ’ä»¶
 chkconfig rabbitmq-server on
 rabbitmq-plugins enable rabbitmq_management
 
 rabbitmq-plugins list
 mv rabbitmq_delayed_message_exchange-0.0.1.ez /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.5/plugins/
-ÆôÓÃ£º
+å¯ç”¨ï¼š
 rabbitmq-plugins enable rabbitmq_delayed_message_exchange
 
 rabbitmq-server -detached
 
 
 http://xxxxxxx:15672/
-É¾³ıguestÓÃ»§
-Ä¬ÈÏÍøÒ³ÊÇ²»ÔÊĞí·ÃÎÊµÄ£¬ĞèÒªÔö¼ÓÒ»¸öÓÃ»§ĞŞ¸ÄÒ»ÏÂÈ¨ÏŞ£¬´úÂëÈçÏÂ£º
-¡¡¡¡Ìí¼ÓÓÃ»§£ºrabbitmqctl add_user damon 123456
-¡¡¡¡Ìí¼ÓÈ¨ÏŞ£ºrabbitmqctl set_permissions -p "/" damon ".*" ".*" ".*"
-ĞŞ¸ÄÓÃ»§½ÇÉ«£ºrabbitmqctl set_user_tags damon administrator
-#¸ù¾İ×Ô¼ºĞèÒª´´½¨ÒÔÏÂÄÚÈİ
-´´½¨ĞéÄâÖ÷»ú£ºrabbitmqctl add_vhost vhost£¨vhostÎªĞéÄâÖ÷»úÃû£©
-ÇåÀíÔ­Ê¼È¨ÏŞ£ºrabbitmqctl clear_permissions -p / damon
-ÊÚÓèĞÂÖ÷»úÈ¨ÏŞ£ºrabbitmqctl set_permissions -p vhost damon ".*" ".*" ".*"
+åˆ é™¤guestç”¨æˆ·
+é»˜è®¤ç½‘é¡µæ˜¯ä¸å…è®¸è®¿é—®çš„ï¼Œéœ€è¦å¢åŠ ä¸€ä¸ªç”¨æˆ·ä¿®æ”¹ä¸€ä¸‹æƒé™ï¼Œä»£ç å¦‚ä¸‹ï¼š
+ã€€ã€€æ·»åŠ ç”¨æˆ·ï¼šrabbitmqctl add_user damon 123456
+ã€€ã€€æ·»åŠ æƒé™ï¼šrabbitmqctl set_permissions -p "/" damon ".*" ".*" ".*"
+ä¿®æ”¹ç”¨æˆ·è§’è‰²ï¼šrabbitmqctl set_user_tags damon administrator
+#æ ¹æ®è‡ªå·±éœ€è¦åˆ›å»ºä»¥ä¸‹å†…å®¹
+åˆ›å»ºè™šæ‹Ÿä¸»æœºï¼šrabbitmqctl add_vhost vhostï¼ˆvhostä¸ºè™šæ‹Ÿä¸»æœºåï¼‰
+æ¸…ç†åŸå§‹æƒé™ï¼šrabbitmqctl clear_permissions -p / damon
+æˆäºˆæ–°ä¸»æœºæƒé™ï¼šrabbitmqctl set_permissions -p vhost damon ".*" ".*" ".*"
 
 
-rabbitmqctl²é¿´¶ÓÁĞÇé¿ö
+rabbitmqctlæŸ¥çœ‹é˜Ÿåˆ—æƒ…å†µ
 http://blog.csdn.net/u014087707/article/details/53976576
 
 
