@@ -2,7 +2,19 @@
 
 http://www.rabbitmq.com/install-rpm.html
 
+
+rpm安装：
+依赖关系
+https://www.rabbitmq.com/which-erlang.html
+
 rpm:erlang:https://github.com/rabbitmq/erlang-rpm/releases
+
+rpm -i erlang-21.3.7-1.el7.x86_64.rpm
+yum install socat
+rpm -i rabbitmq-server-3.7.14-1.el7.noarch.rpm
+
+
+
 1、下载erlang
 http://www.erlang.org/downloads
 scp root@10.168.55.122:/mnt/package/otp_src_19.1.tar.gz .
