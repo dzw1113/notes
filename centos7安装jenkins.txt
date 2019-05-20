@@ -1,0 +1,40 @@
+https://blog.csdn.net/it_lihongmin/article/details/80814384
+
+
+https://pkg.jenkins.io/redhat/
+
+wget https://prodjenkinsreleases.blob.core.windows.net/redhat/jenkins-2.177-1.1.noarch.rpm
+
+安装Jenkins
+    1、可以自己装一个tomcat或其他服务器，并且下载Jenkins.war的包，直接安装启动普通项目的方式配置。
+
+    2、下载jenkins的安装包Jenkins各版本的rpm安装包，并且导入Centos中：
+
+rpm -ivh jenkins-2.129-1.1.noarch.rpm // 可能需要修改一下版本号
+    安装比较简单，下面是一些简单的管理命令：
+
+sudo service jenkins start | stop | restart | status
+
+日志目录
+vim /var/log/jenkins/jenkins.log
+
+修改jenkins的默认JENKINS_PORT是8080,
+
+firewall-cmd --zone=public --list-ports
+
+
+vim /etc/sysconfig/jenkins 
+service jenkins restart
+firewall-cmd --permanent --zone=public --add-port=10010/tcp
+firewall-cmd --permanent --zone=public --add-port=10010/udp
+
+指定java环境变量
+/etc/rc.d/init.d/jenkins
+
+
+https://www.cnblogs.com/forever521Lee/p/9356212.html
+该Jenkins实例似乎已离线
+修改/var/lib/jenkins/hudson.model.UpdateCenter.xml里面的https://updates.jenkins.io/update-center.json换成http，不更新
+
+查看软连接具体指向
+ls -al /usr/bin/java

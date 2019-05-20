@@ -1,0 +1,124 @@
+https://www.cnblogs.com/wenwei-blog/p/5861450.html
+
+https://www.cnblogs.com/heyonggang/p/7778203.html
+
+推荐
+https://www.cnblogs.com/wangyong-blog/p/9712158.html
+https://blog.csdn.net/logincheck/article/details/81981196
+
+取消用户注册
+https://blog.csdn.net/qq_37674858/article/details/80825132
+
+
+1. 安装依赖软件
+yum -y install policycoreutils openssh-server openssh-clients postfix
+yum install -y policycoreutils-python
+
+2.设置postfix开机自启，并启动，postfix支持gitlab发信功能
+systemctl enable postfix && systemctl start postfix
+3.下载gitlab安装包，然后安装
+centos 6系统的下载地址:https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el6
+centos 7系统的下载地址:https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7
+我的是centos7,所以我在https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7中找了个gitlab8.0.0版本,建议下载一个比较新的版本,我这里选了一个比较旧的版本仅仅是实验
+下载rpm包并安装:
+wget https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/gitlab-ce-8.0.0-ce.0.el7.x86_64.rpm
+
+wget https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/gitlab-ce-11.10.4-ce.0.el7.x86_64.rpm
+rpm -i gitlab-ce-10.1.5-ce.0.el7.x86_64.rpm
+
+
+
+
+4.修改gitlab配置文件指定服务器ip和自定义端口：
+vim  /etc/gitlab/gitlab.rb
+
+external_url 'http://xxxxx:10011'
+
+firewall-cmd --permanent --zone=public --add-port=10011/tcp
+firewall-cmd --permanent --zone=public --add-port=10011/udp
+
+
+5.重置并启动GitLab
+
+执行：
+
+gitlab-ctl reconfigure
+
+gitlab-ctl restart
+
+6.访问 GitLab页面
+
+如果没有域名，直接输入服务器ip和指定端口进行访问
+
+
+初始账户: root 密码: 5iveL!fe
+
+
+6.设置gitlab发信功能，需要注意一点：
+
+
+发信系统用的默认的postfix，smtp是默认开启的，两个都启用了，两个都不会工作。
+
+我这里设置关闭smtp，开启postfix
+
+关闭smtp方法：vim /etc/gitlab/gitlab.rb
+
+找到#gitlab_rails['smtp_enable'] = true 改为 gitlab_rails['smtp_enable'] = false
+
+修改后执行gitlab-ctl reconfigure
+
+另一种是关闭postfix，设置开启smtp，相关教程请参考官网https://doc.gitlab.cc/omnibus/settings/smtp.html
+
+测试是否可以邮件通知：
+
+登录并添加一个用户，我这里使用qq邮箱添加一个用户
+
+
+https://www.jianshu.com/p/91b0d685f3b8
+出现卡死问题
+ruby_block[wait for redis service socket] action run
+
+Chef Client failed. 111 resources updated in 06 minutes 49 seconds
+
+解决方案：
+1、按住CTRL+C强制结束；
+2、运行：sudo systemctl restart gitlab-runsvdir；
+3、再次执行：sudo gitlab-ctl reconfigure
+解决方案来源：https://gitlab.com/gitlab-org/omnibus-gitlab/issues/160
+
+作者：格老子
+链接：https://www.jianshu.com/p/91b0d685f3b8
+来源：简书
+简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。
+
+===================完全卸载删除gitlab
+
+1、停止gitlab
+
+gitlab-ctl stop
+
+2、卸载gitlab（注意这里写的是gitlab-ce）
+
+rpm -e gitlab-ce
+
+3、查看gitlab进程
+
+ps aux | grep gitlab
+
+
+
+4、杀掉第一个进程（就是带有好多.............的进程）
+
+kill -9 18777
+
+列出了要kill掉这些进程的命令，并将之打印在了屏幕上
+ps -ef|grep gitlab|grep -v grep|awk '{print "kill -9 "$2}',在后面加上|sh后，则执行这些命令，进而杀掉了这些进程。
+示例：ps -aux|grep "service_2.php"|awk '{print "kill -9 "$2}'|sh
+
+
+杀掉后，在ps aux | grep gitlab确认一遍，还有没有gitlab的进程
+
+5、删除所有包含gitlab文件
+
+find / -name gitlab | xargs rm -rf
+

@@ -11,3 +11,5 @@ rpm -e  --nodeps xxxxxx
 chmod 755 jdk-8u131-linux-x64.rpm
 
 rpm -i jdk-8u131-linux-x64.rpm
+
+ln -s /usr/java/jdk1.8.0_11/bin/jps /usr/bin/jps

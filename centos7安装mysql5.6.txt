@@ -81,8 +81,10 @@ systemctl status mysqld
 mysql -h10.117.180.197 -uroot -p
 CREATE USER '1111'@'%' IDENTIFIED BY '11';
 GRANT ALL PRIVILEGES ON *.* TO 'kmadmin'@'%'
+GRANT ALL PRIVILEGES ON *.* TO 'sjbos'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
 mysql -h10.117.180.197 -uroot -p
 
+flush privileges;
 
 加入开机启动
 systemctl is-enabled mysql.service;echo $?
@@ -113,3 +115,12 @@ https://dev.mysql.com/doc/refman/5.5/en/packet-too-large.html
 
 mysql 优化之开启慢查询并分析原因
 http://blog.csdn.net/haiqiao_2010/article/details/25138099
+
+
+ERROR 1820 (HY000): You must reset your password using ALTER USER statement before executing this statement.
+alter user 'root'@'localhost' identified by '123456';
+
+ERROR 1819 (HY000): Your password does not satisfy the current policy requirements
+
+set global validate_password_policy=LOW;
+set global validate_password_length=6;
