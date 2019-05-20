@@ -1,4 +1,4 @@
-<<<<<<< HEAD:centos7安装rabbitmq.txt
+
 http://www.rabbitmq.com/install-rpm.html
 
 
@@ -67,7 +67,7 @@ firewall-cmd --reload
 http://www.rabbitmq.com/install-rpm.html
 
 
-rpm安装：
+rpm安装�?
 依赖关系
 https://www.rabbitmq.com/which-erlang.html
 
@@ -93,7 +93,7 @@ yum -y install make gcc gcc-c++ kernel-devel m4 ncurses-devel openssl-devel unix
 3、make 
 make install
 
-校验：
+校验�?
 进入/usr/erlang/bin
 ./erl
 
@@ -108,13 +108,13 @@ rpm --import https://www.rabbitmq.com/rabbitmq-release-signing-key.asc
 yum install rabbitmq-server-3.6.5-1.noarch.rpm
 
 
-5、下载延时队列插件
+5、下载延时队列插�?
 chkconfig rabbitmq-server on
 rabbitmq-plugins enable rabbitmq_management
 
 rabbitmq-plugins list
 mv rabbitmq_delayed_message_exchange-0.0.1.ez /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.5/plugins/
-启用：
+启用�?
 rabbitmq-plugins enable rabbitmq_delayed_message_exchange
 
 rabbitmq-server -detached
@@ -122,12 +122,12 @@ rabbitmq-server -detached
 
 http://xxxxxxx:15672/
 删除guest用户
-默认网页是不允许访问的，需要增加一个用户修改一下权限，代码如下：
+默认网页是不允许访问的，需要增加一个用户修改一下权限，代码如下�?
 　　添加用户：rabbitmqctl add_user damon 123456
 　　添加权限：rabbitmqctl set_permissions -p "/" damon ".*" ".*" ".*"
 修改用户角色：rabbitmqctl set_user_tags damon administrator
-#根据自己需要创建以下内容
-创建虚拟主机：rabbitmqctl add_vhost vhost（vhost为虚拟主机名）
+#根据自己需要创建以下内�?
+创建虚拟主机：rabbitmqctl add_vhost vhost（vhost为虚拟主机名�?
 清理原始权限：rabbitmqctl clear_permissions -p / damon
 授予新主机权限：rabbitmqctl set_permissions -p vhost damon ".*" ".*" ".*"
 
@@ -138,4 +138,5 @@ http://blog.csdn.net/u014087707/article/details/53976576
 
 firewall-cmd --permanent --zone=public --add-port=5672/tcp
 firewall-cmd --reload
->>>>>>> 25caab32542d66bd7e7dd6a96c0703ad943ee094:linux安装rabbitmq.txt
+
+

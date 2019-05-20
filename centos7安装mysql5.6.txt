@@ -122,8 +122,7 @@ http://www.mamicode.com/info-detail-1382100.html
 mysqlæ‰“å¼€æ–‡ä»¶æœ€å¤§æ•°è°ƒæ•´
 https://dev.mysql.com/doc/refman/5.5/en/packet-too-large.html
 
-<<<<<<< HEAD
-mysql ÓÅ»¯Ö®¿ªÆôÂý²éÑ¯²¢·ÖÎöÔ­Òò
+
 http://blog.csdn.net/haiqiao_2010/article/details/25138099
 
 
@@ -137,4 +136,4 @@ set global validate_password_length=6;
 =======
 mysql ä¼˜åŒ–ä¹‹å¼€å¯æ…¢æŸ¥è¯¢å¹¶åˆ†æžåŽŸå› 
 http://blog.csdn.net/haiqiao_2010/article/details/25138099
->>>>>>> 25caab32542d66bd7e7dd6a96c0703ad943ee094
+
